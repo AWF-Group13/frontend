@@ -1,3 +1,22 @@
+# Setup 
+
+1. Set up environmental variables:
+
+`cp env.example .env.development`
+`cp env.example .env.production`
+
+2. Install dependencies:
+
+`npm install`
+
+3. Run development:
+
+`npm run dev`
+
+4. Run production:
+
+`npm run build`
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
