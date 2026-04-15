@@ -12,7 +12,7 @@ const rootRoute = createRootRoute();
 
 const layoutRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/",
+  id: "app-shell",
   component: AppShell,
 });
 
