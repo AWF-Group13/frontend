@@ -11,6 +11,7 @@ import AdminRoomsPage from "../pages/AdminRoomsPage";
 import BookingsPage from "../pages/BookingsPage";
 import HomePage from "../pages/HomePage";
 import RoomsPage from "../pages/RoomsPage";
+import RoomDetailsPage from "../pages/RoomDetailsPage";
 
 const rootRoute = createRootRoute();
 
@@ -63,6 +64,12 @@ const bookingsRoute = createRoute({
   component: BookingsPage,
 });
 
+export const roomDetailsRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: "rooms/$roomId",
+  component: RoomDetailsPage,
+});
+
 /* Admin room management */
 const adminRoomsRoute = createRoute({
   getParentRoute: () => adminRoute,
@@ -81,7 +88,7 @@ const routeTree = rootRoute.addChildren([
   layoutRoute.addChildren([
     homeRoute,
     protectedRoute.addChildren([
-      roomsRoute,
+      roomsRoute.addChildren([roomDetailsRoute]),
       bookingsRoute,
       adminRoute.addChildren([adminRoomsRoute, adminBookingsRoute]),
     ]),

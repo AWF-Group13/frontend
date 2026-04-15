@@ -1,5 +1,3 @@
-import React from "react";
-
 type Props = {};
 
 function RoomsPage(props: Props) {
