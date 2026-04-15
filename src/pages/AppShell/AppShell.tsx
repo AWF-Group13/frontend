@@ -1,5 +1,7 @@
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
+import { Book } from "lucide-react";
 import { Link, Outlet } from "@tanstack/react-router";
+import "./AppShell.css";
 
 type Props = {};
 
@@ -8,10 +10,12 @@ function AppShell(props: Props) {
     <div>
       <header>
         <nav>
-          <Link to="/">Home</Link>
+          <Link to="/" aria-label="Home" className="homelink">
+            <Book size={20} />
+            Library logo
+          </Link>
           <Link to="/rooms">Rooms</Link>
           <Link to="/bookings">Bookings</Link>
-          <Link to="/profile">Profile</Link>
         </nav>
 
         <div className="authButtons">

@@ -5,7 +5,7 @@ import {
   redirect,
 } from "@tanstack/react-router";
 
-import AppShell from "../pages/AppShell";
+import AppShell from "../pages/AppShell/AppShell";
 import AdminBookingsPage from "../pages/AdminBookingsPage";
 import AdminRoomsPage from "../pages/AdminRoomsPage";
 import BookingsPage from "../pages/BookingsPage";
