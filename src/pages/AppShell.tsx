@@ -10,6 +10,8 @@ function AppShell(props: Props) {
         <nav>
           <Link to="/">Home</Link>
           <Link to="/rooms">Rooms</Link>
+          <Link to="/bookings">Bookings</Link>
+          <Link to="/profile">Profile</Link>
         </nav>
 
         <div className="authButtons">
