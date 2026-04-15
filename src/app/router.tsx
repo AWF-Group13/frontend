@@ -10,7 +10,7 @@ import AdminBookingsPage from "../pages/AdminBookingsPage";
 import AdminRoomsPage from "../pages/AdminRoomsPage";
 import BookingsPage from "../pages/BookingsPage";
 import HomePage from "../pages/HomePage";
-import RoomsPage from "../pages/RoomsPage";
+import RoomsPage from "../pages/RoomsPage/RoomsPage";
 import RoomDetailsPage from "../pages/RoomDetailsPage";
 
 const rootRoute = createRootRoute();
