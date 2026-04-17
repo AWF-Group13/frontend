@@ -7,21 +7,6 @@ type Props = {};
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-// const fakeRooms = [
-//   {
-//     id: "a101",
-//     name: "Room A101",
-//     capacity: 6,
-//     features: ["Projector", "Whiteboard"],
-//   },
-//   {
-//     id: "f105",
-//     name: "Room F105",
-//     capacity: 10,
-//     features: ["TV", "Conference Phone"],
-//   },
-// ];
-
 async function fetchRooms(getAuthToken: () => Promise<string | null>) {
   const authToken = await getAuthToken();
 
@@ -36,7 +21,6 @@ async function fetchRooms(getAuthToken: () => Promise<string | null>) {
   }
 
   const data = await response.json();
-  console.log("Fetched rooms:", data);
   return data.rooms;
 }
 
