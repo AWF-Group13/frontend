@@ -1,15 +1,31 @@
 import { useAuth } from "@clerk/react";
-import { roomDetailsRoute } from "../app/router";
 import { useQuery } from "@tanstack/react-query";
+import { roomDetailsRoute } from "../app/router";
 
-type Props = {};
+type RoomImage = {
+  id: number;
+  imageUrl: string;
+};
+
+type Room = {
+  id: number;
+  name: string | null;
+  capacity: number | null;
+  features: string[] | null;
+  isBookable: boolean | null;
+  images?: RoomImage[];
+};
+
+type RoomDetailsResponse = {
+  room: Room;
+};
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 async function fetchSingleRoomDetails(
   getAuthToken: () => Promise<string | null>,
   roomId: string,
-) {
+): Promise<RoomDetailsResponse> {
   const authToken = await getAuthToken();
   const response = await fetch(`${BASE_URL}/rooms/${roomId}`, {
     headers: {
@@ -22,13 +38,12 @@ async function fetchSingleRoomDetails(
   }
 
   const roomDetails = await response.json();
-  console.log("Fetched room details:", roomDetails);
   return roomDetails;
 }
 
-function RoomDetailsPage(props: Props) {
+function RoomDetailsPage() {
   const { roomId } = roomDetailsRoute.useParams();
-  const { isSignedIn, isLoaded, getToken } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
 
   const {
     data: roomDetails,
@@ -49,12 +64,36 @@ function RoomDetailsPage(props: Props) {
     return <div>Error loading room details</div>;
   }
 
+  const room = roomDetails?.room;
+
   return (
     <div>
-      {roomDetails && (
+      {room && (
         <div>
-          <p>{roomDetails.room.name}</p>
-          <p>{roomDetails.room.features}</p>
+          <h1>{room.name ?? "Room"}</h1>
+
+          {room.images && room.images.length > 0 ? (
+            <img
+              src={room.images[0].imageUrl}
+              alt={`Room Image ${room.name}`}
+            />
+          ) : null}
+
+          <p>Capacity: {room.capacity ?? ""}</p>
+          <p>Available to book: {room.isBookable ? "Yes" : "No"}</p>
+
+          <div>
+            <h2>Features</h2>
+            {room.features && room.features.length > 0 ? (
+              <ul>
+                {room.features.map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>No features listed.</p>
+            )}
+          </div>
         </div>
       )}
     </div>
