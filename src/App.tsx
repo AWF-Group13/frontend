@@ -1,20 +1,16 @@
-import './App.css'
-import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/react'
-
-function App() {
-  return (
-    <>
-      <header>
-        <Show when="signed-out">
-          <SignInButton />
-          <SignUpButton />
-        </Show>
-        <Show when="signed-in">
-          <UserButton />
-        </Show>
-      </header>
-    </>
-  )
-}
-
-export default App
+import { RouterProvider } from "@tanstack/react-router";
+import { router } from "./app/router";
+import "./App.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
+}
+
+export default App;
