@@ -58,7 +58,7 @@ const roomsRoute = createRoute({
 });
 
 /* For viewing bookings */
-const bookingsRoute = createRoute({
+export const bookingsRoute = createRoute({
   getParentRoute: () => protectedRoute,
   path: "bookings",
   component: BookingsPage,
