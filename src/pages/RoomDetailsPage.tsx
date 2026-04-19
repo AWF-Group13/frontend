@@ -1,15 +1,18 @@
 import { useAuth } from "@clerk/react";
 import { roomDetailsRoute } from "../app/router";
 import { useQuery } from "@tanstack/react-query";
+import type { RoomRecord } from "../admin/adminApi";
 
-type Props = {};
+type RoomDetailsResponse = { // typed so we know how the api response
+  room: RoomRecord;
+};
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 async function fetchSingleRoomDetails(
   getAuthToken: () => Promise<string | null>,
   roomId: string,
-) {
+): Promise<RoomDetailsResponse> {
   const authToken = await getAuthToken();
   const response = await fetch(`${BASE_URL}/rooms/${roomId}`, {
     headers: {
@@ -22,13 +25,12 @@ async function fetchSingleRoomDetails(
   }
 
   const roomDetails = await response.json();
-  console.log("Fetched room details:", roomDetails);
   return roomDetails;
 }
 
-function RoomDetailsPage(props: Props) {
+function RoomDetailsPage() {
   const { roomId } = roomDetailsRoute.useParams();
-  const { isSignedIn, isLoaded, getToken } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
 
   const {
     data: roomDetails,
@@ -54,7 +56,7 @@ function RoomDetailsPage(props: Props) {
       {roomDetails && (
         <div>
           <p>{roomDetails.room.name}</p>
-          <p>{roomDetails.room.features}</p>
+          <p>{roomDetails.room.features?.join(", ")}</p>
         </div>
       )}
     </div>
