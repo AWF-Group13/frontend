@@ -5,3 +5,7 @@
   gap: 0.25rem;
   font-size: 0.5rem;
 }
+
+nav {
+  flex-wrap: wrap;
+}
