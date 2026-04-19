@@ -13,6 +13,7 @@ import BookingsPage from "../pages/BookingsPage";
 import HomePage from "../pages/HomePage";
 import RoomsPage from "../pages/RoomsPage/RoomsPage";
 import RoomDetailsPage from "../pages/RoomDetailsPage";
+import { currentUserQueryOptions } from "../admin/adminApi";
 
 type RouterContext = { // App.tsx gives this so routes can use auth and query client
   auth: {
@@ -40,14 +41,16 @@ const protectedRoute = createRoute({
   },
 });
 
-const adminRoute = createRoute({ // still fake admin check for now, will fix later
+const adminRoute = createRoute({
   getParentRoute: () => protectedRoute,
   id: "admin",
-  beforeLoad: () => {
-    const role = "admin"; // temporary for now
+  beforeLoad: async ({ context }) => {
+    const currentUser = await context.queryClient.ensureQueryData( // asks api who this user is
+      currentUserQueryOptions(context.auth.getToken),
+    );
 
-    if (role !== "admin") {
-      throw redirect({ to: "/rooms" });
+    if (currentUser.role !== "admin") {
+      throw redirect({ to: "/rooms" }); // not an admin? hop u r back to regular room page
     }
   },
 });
