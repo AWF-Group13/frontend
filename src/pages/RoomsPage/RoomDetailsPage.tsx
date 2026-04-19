@@ -154,8 +154,8 @@ function RoomDetailsPage() {
     }
 
     const bookingData: BookingData = {
-      start_time: startTime,
-      end_time: endTime,
+      start_time: new Date(startTime).toISOString(),
+      end_time: new Date(endTime).toISOString(),
       user_id: userId,
       room_id: Number(roomId),
     };
