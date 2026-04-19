@@ -4,6 +4,7 @@ import { roomDetailsRoute } from "../../app/router";
 import "./RoomDetailsPage.css";
 import { useState } from "react";
 import { getUserData } from "../../services/userService";
+import { authenticatedFetch } from "../../services/apiReqService";
 
 type RoomImage = {
   id: number;
@@ -39,12 +40,10 @@ async function fetchSingleRoomDetails(
   getAuthToken: () => Promise<string | null>,
   roomId: string,
 ): Promise<RoomDetailsResponse> {
-  const authToken = await getAuthToken();
-  const response = await fetch(`${BASE_URL}/rooms/${roomId}`, {
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-    },
-  });
+  const response = await authenticatedFetch(
+    getAuthToken,
+    `${BASE_URL}/rooms/${roomId}`,
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch room details");
@@ -88,11 +87,7 @@ function RoomDetailsPage() {
   const { data: user } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
-      const token = await getToken();
-      if (!token) {
-        throw new Error("No token found");
-      }
-      const data = await getUserData(token);
+      const data = await getUserData(getToken);
       return data.user;
     },
     enabled: isSignedIn,
@@ -116,16 +111,17 @@ function RoomDetailsPage() {
     getAuthToken: () => Promise<string | null>,
     bookingData: BookingData,
   ) {
-    const authToken = await getAuthToken();
-
-    const response = await fetch(`${BASE_URL}/bookings`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
+    const response = await authenticatedFetch(
+      getAuthToken,
+      `${BASE_URL}/bookings`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
       },
-      body: JSON.stringify(bookingData),
-    });
+    );
 
     if (!response.ok) {
       throw new Error("Failed to create booking");
