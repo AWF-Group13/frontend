@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import {
   createRoomRequest,
+  deleteRoomRequest,
   fetchAdminRooms,
   type RoomInput,
   type RoomRecord,
@@ -87,6 +88,19 @@ function AdminRoomsPage() {
     },
     onError: (mutationError: Error) => {
       setFormError(mutationError.message);
+    },
+  });
+
+  const deleteRoomMutation = useMutation({
+    mutationFn: (roomId: number) => deleteRoomRequest(getToken, roomId),
+    onSuccess: async (_data, roomId) => {
+      if (editingRoomId !== null && editingRoomId === roomId) { // deleted the room we were editing? reset the form
+        setFormMode("create");
+        setEditingRoomId(null);
+        setRoomForm(initialRoomForm);
+      }
+
+      await refreshRooms();
     },
   });
 
@@ -186,6 +200,13 @@ function AdminRoomsPage() {
                             >
                               Edit
                             </button>
+                            <button
+                              type="button"
+                              onClick={() => deleteRoomMutation.mutate(room.id)}
+                              disabled={deleteRoomMutation.isPending}
+                            >
+                              Delete
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -196,6 +217,10 @@ function AdminRoomsPage() {
             ) : (
               <div className="emptyState">No rooms found.</div>
             )}
+
+            {deleteRoomMutation.error ? (
+              <p className="errorText">{deleteRoomMutation.error.message}</p>
+            ) : null}
           </div>
 
           <form className="adminForm" onSubmit={handleSubmit}>
