@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { roomDetailsRoute } from "../../app/router";
 import "./RoomDetailsPage.css";
 import { useState } from "react";
+import { getUserData } from "../../services/userService";
 
 type RoomImage = {
   id: number;
@@ -20,6 +21,14 @@ type Room = {
 
 type RoomDetailsResponse = {
   room: Room;
+};
+
+// Data sent to book the room
+type BookingData = {
+  start_time: string;
+  end_time: string;
+  user_id: number;
+  room_id: number;
 };
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -51,6 +60,8 @@ function RoomDetailsPage() {
 
   const [name, setName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState<string>("");
+  const [endTime, setEndTime] = useState<string>("");
 
   const {
     data: roomDetails,
@@ -59,6 +70,20 @@ function RoomDetailsPage() {
   } = useQuery({
     queryKey: ["roomDetails", roomId],
     queryFn: () => fetchSingleRoomDetails(getToken, roomId),
+  });
+
+  // Need the user id for post req
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const token = await getToken();
+      if (!token) {
+        throw new Error("No token found");
+      }
+      const data = await getUserData(token);
+      return data.user;
+    },
+    enabled: isSignedIn,
   });
 
   if (isLoading) {
@@ -71,12 +96,39 @@ function RoomDetailsPage() {
     return <div>Error loading room details</div>;
   }
 
+  const userId = user?.id;
+
+  // Function to create a booking for the room
+  // Takes the booking data and sends a POST request to the backend
+  async function createBooking(
+    getAuthToken: () => Promise<string | null>,
+    bookingData: BookingData,
+  ) {
+    const authToken = await getAuthToken();
+
+    const response = await fetch(`${BASE_URL}/bookings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(bookingData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to create booking");
+    }
+
+    return response.json();
+  }
+
   function handleNameInput(event: React.ChangeEvent<HTMLInputElement>) {
     setName(event.target.value);
   }
 
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError("");
     // Handle form submission logic here
     if (
       name.trim().length < MIN_NAME_LENGTH ||
@@ -85,6 +137,38 @@ function RoomDetailsPage() {
       setError("Name must be between 2 and 40 characters");
       return;
     }
+
+    if (!startTime || !endTime) {
+      setError("Start and end time are required.");
+      return;
+    }
+
+    if (new Date(endTime) <= new Date(startTime)) {
+      setError("End time must be after start time.");
+      return;
+    }
+
+    if (!userId) {
+      setError("No user ID");
+      return;
+    }
+
+    const bookingData: BookingData = {
+      start_time: startTime,
+      end_time: endTime,
+      user_id: userId,
+      room_id: Number(roomId),
+    };
+
+    createBooking(getToken, bookingData)
+      .then(() => {
+        alert("Room booked successfully!");
+        // Optionally, you can reset the form or redirect the user
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Failed to book room. Please try again.");
+      });
   }
 
   const room = roomDetails?.room;
@@ -145,6 +229,8 @@ function RoomDetailsPage() {
                   type="datetime-local"
                   id="startTime"
                   className="bookRoomInput"
+                  onChange={(e) => setStartTime(e.target.value)}
+                  value={startTime}
                 />
               </div>
               <div className="bookRoomField">
@@ -155,6 +241,8 @@ function RoomDetailsPage() {
                   type="datetime-local"
                   id="endTime"
                   className="bookRoomInput"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
                 />
               </div>
               <button type="submit">Book Room</button>
