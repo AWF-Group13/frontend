@@ -1,3 +1,7 @@
+import { queryOptions } from "@tanstack/react-query";
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 export type CurrentUser = { // from GET /users/me
   id: number;
   clerkUserId: string;
@@ -30,10 +34,7 @@ export type RoomInput = { // the shape we need to send when creating or updating
 
 type GetToken = () => Promise<string | null>; // clerk gives this so we can get the auth token
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 async function fetchJson<T>( // makes sure each request sends auth token too
-  url: string,
   url: string,
   getToken: GetToken,
   init?: RequestInit,
@@ -76,4 +77,38 @@ async function readErrorMessage(response: Response) {
 
   const text = await response.text();
   return text || "Request failed"; // if nothing else i show this
+}
+
+export async function fetchCurrentUser(getToken: GetToken) {
+  const data = await fetchJson<{ user: CurrentUser }>(
+    `${BASE_URL}/users/me`,
+    getToken,
+  );
+
+  return data.user;
+}
+
+export function currentUserQueryOptions(getToken: GetToken) { // will reuse for router and AppShell lol
+  return queryOptions({
+    queryKey: ["currentUser"],
+    queryFn: () => fetchCurrentUser(getToken),
+  });
+}
+
+export async function fetchAdminRooms(getToken: GetToken) {
+  const data = await fetchJson<{ rooms: RoomRecord[] }>(
+    `${BASE_URL}/rooms`,
+    getToken,
+  );
+
+  return data.rooms;
+}
+
+export async function fetchAdminBookings(getToken: GetToken) {
+  const data = await fetchJson<{ bookings: BookingRecord[] }>(
+    `${BASE_URL}/bookings`,
+    getToken,
+  );
+
+  return data.bookings;
 }
