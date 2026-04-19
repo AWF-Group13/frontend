@@ -5,7 +5,24 @@ import { useAuth } from "@clerk/react";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-async function fetchRooms(getAuthToken: () => Promise<string | null>) {
+type RoomImageResponse = {
+  id: number;
+  roomId: number;
+  imageUrl: string;
+};
+
+type RoomResponse = {
+  id: number;
+  name: string | null;
+  capacity: number | null;
+  features: string[] | null;
+  isBookable: boolean | null;
+  images?: RoomImageResponse[];
+};
+
+async function fetchRooms(
+  getAuthToken: () => Promise<string | null>,
+): Promise<RoomResponse[]> {
   const authToken = await getAuthToken();
 
   const response = await fetch(`${BASE_URL}/rooms`, {
@@ -18,7 +35,7 @@ async function fetchRooms(getAuthToken: () => Promise<string | null>) {
     throw new Error("Failed to fetch rooms");
   }
 
-  const data = await response.json();
+  const data: { rooms: RoomResponse[] } = await response.json();
   return data.rooms;
 }
 
