@@ -112,3 +112,27 @@ export async function fetchAdminBookings(getToken: GetToken) {
 
   return data.bookings;
 }
+
+export async function createRoomRequest(getToken: GetToken, roomInput: RoomInput) {
+  await fetchJson(`${BASE_URL}/rooms`, getToken, {
+    method: "POST",
+    body: JSON.stringify(roomInput),
+  });
+}
+
+export async function updateRoomRequest(
+  getToken: GetToken,
+  roomId: number,
+  roomInput: RoomInput,
+) {
+  await fetchJson(`${BASE_URL}/rooms/${roomId}`, getToken, {
+    method: "PUT",
+    body: JSON.stringify(roomInput),
+  });
+}
+
+export async function deleteRoomRequest(getToken: GetToken, roomId: number) {
+  await fetchJson(`${BASE_URL}/rooms/${roomId}`, getToken, {
+    method: "DELETE",
+  });
+}
