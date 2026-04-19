@@ -5,8 +5,12 @@ import {
   createRoomRequest,
   fetchAdminRooms,
   type RoomInput,
+  type RoomRecord,
+  updateRoomRequest,
 } from "../admin/adminApi";
 import "./admin.css";
+
+type FormMode = "create" | "edit"; // tracks whether the form is making a new room or changing one
 
 type RoomForm = {
   name: string;
@@ -15,6 +19,14 @@ type RoomForm = {
 };
 
 const initialRoomForm: RoomForm = { name: "", capacity: "", featuresText: "" };
+
+function buildRoomForm(room: RoomRecord): RoomForm { // form fields > api
+  return {
+    name: room.name ?? "",
+    capacity: room.capacity?.toString() ?? "",
+    featuresText: Array.isArray(room.features) ? room.features.join(", ") : "",
+  };
+}
 
 function buildRoomInput(roomForm: RoomForm): RoomInput { // form fields > api
   return {
@@ -30,6 +42,8 @@ function buildRoomInput(roomForm: RoomForm): RoomInput { // form fields > api
 function AdminRoomsPage() {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
+  const [formMode, setFormMode] = useState<FormMode>("create");
+  const [editingRoomId, setEditingRoomId] = useState<number | null>(null); // which room id we are editing right now
   const [roomForm, setRoomForm] = useState<RoomForm>(initialRoomForm);
   const [formError, setFormError] = useState("");
 
@@ -61,8 +75,32 @@ function AdminRoomsPage() {
     },
   });
 
+  const updateRoomMutation = useMutation({
+    mutationFn: (roomInput: RoomInput) =>
+      updateRoomRequest(getToken, editingRoomId as number, roomInput),
+    onSuccess: async () => {
+      setFormMode("create"); // go back to create mode after saving changes
+      setEditingRoomId(null);
+      setRoomForm(initialRoomForm);
+      setFormError("");
+      await refreshRooms();
+    },
+    onError: (mutationError: Error) => {
+      setFormError(mutationError.message);
+    },
+  });
+
   function resetForm() {
+    setFormMode("create");
+    setEditingRoomId(null);
     setRoomForm(initialRoomForm);
+    setFormError("");
+  }
+
+  function startEditing(room: RoomRecord) { // fills form with data from whicever u choose so you can change it
+    setFormMode("edit");
+    setEditingRoomId(room.id);
+    setRoomForm(buildRoomForm(room));
     setFormError("");
   }
 
@@ -81,8 +119,20 @@ function AdminRoomsPage() {
       return;
     }
 
+    if (formMode === "edit") {
+      if (editingRoomId === null) { // shouldnt happen but just in case
+        setFormError("No room selected for editing.");
+        return;
+      }
+
+      await updateRoomMutation.mutateAsync(roomInput);
+      return;
+    }
+
     await createRoomMutation.mutateAsync(roomInput);
   }
+
+  const isSaving = createRoomMutation.isPending || updateRoomMutation.isPending; // true when save in progress
 
   return (
     <div className="adminPage">
@@ -108,6 +158,7 @@ function AdminRoomsPage() {
                       <th>Name</th>
                       <th>Capacity</th>
                       <th>Features</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -127,6 +178,16 @@ function AdminRoomsPage() {
                             <span>No features</span>
                           )}
                         </td>
+                        <td>
+                          <div className="adminActions">
+                            <button
+                              type="button"
+                              onClick={() => startEditing(room)}
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -138,7 +199,7 @@ function AdminRoomsPage() {
           </div>
 
           <form className="adminForm" onSubmit={handleSubmit}>
-            <h2>Create Room</h2>
+            <h2>{formMode === "edit" ? "Edit Room" : "Create Room"}</h2>
 
             <label htmlFor="room-name">
               Name
@@ -188,10 +249,10 @@ function AdminRoomsPage() {
             {formError ? <p className="errorText">{formError}</p> : null}
 
             <div className="adminActions">
-              <button type="submit" disabled={createRoomMutation.isPending}>
-                Create Room
+              <button type="submit" disabled={isSaving}>
+                {formMode === "edit" ? "Save Changes" : "Create Room"}
               </button>
-              <button type="button" onClick={resetForm} disabled={createRoomMutation.isPending}>
+              <button type="button" onClick={resetForm} disabled={isSaving}>
                 Clear
               </button>
             </div>
