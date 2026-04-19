@@ -11,7 +11,7 @@ import AdminRoomsPage from "../pages/AdminRoomsPage";
 import BookingsPage from "../pages/BookingsPage";
 import HomePage from "../pages/HomePage";
 import RoomsPage from "../pages/RoomsPage/RoomsPage";
-import RoomDetailsPage from "../pages/RoomDetailsPage";
+import RoomDetailsPage from "../pages/RoomsPage/RoomDetailsPage";
 
 const rootRoute = createRootRoute();
 

@@ -1,6 +1,7 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
-import { roomDetailsRoute } from "../app/router";
+import { roomDetailsRoute } from "../../app/router";
+import "./RoomDetailsPage.css";
 
 type RoomImage = {
   id: number;
@@ -73,10 +74,12 @@ function RoomDetailsPage() {
           <h1>{room.name ?? "Room"}</h1>
 
           {room.images && room.images.length > 0 ? (
-            <img
-              src={room.images[0].imageUrl}
-              alt={`Room Image ${room.name}`}
-            />
+            <div className="roomImageContainer">
+              <img
+                src={room.images[0].imageUrl}
+                alt={`Room Image ${room.name}`}
+              />
+            </div>
           ) : null}
 
           <p>Capacity: {room.capacity ?? ""}</p>

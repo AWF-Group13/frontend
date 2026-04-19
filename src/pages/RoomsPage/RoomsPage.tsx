@@ -3,8 +3,6 @@ import "./RoomsPage.css";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/react";
 
-type Props = {};
-
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 async function fetchRooms(getAuthToken: () => Promise<string | null>) {
@@ -24,7 +22,7 @@ async function fetchRooms(getAuthToken: () => Promise<string | null>) {
   return data.rooms;
 }
 
-function RoomsPage(props: Props) {
+function RoomsPage() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
 
   const {
@@ -42,6 +40,9 @@ function RoomsPage(props: Props) {
   if (!isSignedIn) {
     return <div>Please sign in to view rooms.</div>;
   }
+  if (!isLoaded) {
+    return <div> Authenticating...</div>;
+  }
   if (error) {
     return <div>Error loading rooms</div>;
   }
@@ -56,7 +57,7 @@ function RoomsPage(props: Props) {
               <h2>{room.name}</h2>
               <p>Capacity: {room.capacity}</p>
 
-              {room.features.map((feature: string, index: number) => (
+              {room.features?.map((feature: string, index: number) => (
                 <div key={index}>{feature}</div>
               ))}
             </div>
