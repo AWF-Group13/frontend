@@ -1,0 +1,118 @@
+.adminPage {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.adminHeader h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.adminHeader p {
+  margin: 0.5rem 0 0;
+  color: rgba(127, 127, 127, 0.9);
+}
+
+.adminLayout {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  align-items: start;
+}
+
+.adminTableWrapper {
+  overflow-x: auto;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 12px;
+}
+
+.adminTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.adminTable th,
+.adminTable td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.2);
+  vertical-align: top;
+}
+
+.adminTable th {
+  font-size: 0.9rem;
+}
+
+.adminTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.adminForm {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 12px;
+}
+
+.adminForm h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.adminForm label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.adminForm input,
+.adminForm textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.adminForm textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.adminActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.featureList {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.emptyState {
+  padding: 1.25rem;
+  border: 1px dashed rgba(127, 127, 127, 0.35);
+  border-radius: 12px;
+}
+
+.errorText {
+  color: #c0392b;
+}
+
+@media (max-width: 900px) {
+  .adminLayout {
+    grid-template-columns: 1fr;
+  }
+}
