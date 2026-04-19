@@ -1,5 +1,5 @@
 import { useAuth } from "@clerk/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { roomDetailsRoute } from "../../app/router";
 import "./RoomDetailsPage.css";
 import { useState } from "react";
@@ -62,6 +62,18 @@ function RoomDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
+
+  const createBookingMutation = useMutation({
+    mutationFn: (bookingData: BookingData) =>
+      createBooking(getToken, bookingData),
+    onSuccess: () => {
+      alert("Room booked successfully!");
+    },
+    onError: (err) => {
+      console.error(err);
+      setError("Failed to book room. Please try again.");
+    },
+  });
 
   const {
     data: roomDetails,
@@ -153,22 +165,12 @@ function RoomDetailsPage() {
       return;
     }
 
-    const bookingData: BookingData = {
+    createBookingMutation.mutate({
       start_time: new Date(startTime).toISOString(),
       end_time: new Date(endTime).toISOString(),
       user_id: userId,
       room_id: Number(roomId),
-    };
-
-    createBooking(getToken, bookingData)
-      .then(() => {
-        alert("Room booked successfully!");
-        // Optionally, you can reset the form or redirect the user
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("Failed to book room. Please try again.");
-      });
+    });
   }
 
   const room = roomDetails?.room;
