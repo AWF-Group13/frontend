@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { bookingsRoute } from "../app/router";
 import { authenticatedFetch } from "../services/apiReqService";
 import { useAuth } from "@clerk/react";
 import { getUserData } from "../services/userService";
 import { useQuery } from "@tanstack/react-query";
+import "./BookingsPage.css";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -71,23 +70,56 @@ function BookingsPage() {
     return <div>Error loading bookings</div>;
   }
 
+  // Adapted from a Stack Overflow answer by ajeet kanojia:
+  // https://stackoverflow.com/a/34015511
+  const dateFormatOptions: Intl.DateTimeFormatOptions = {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+
+  function formatDate(isoString: string) {
+    try {
+      const d = new Date(isoString);
+      return d.toLocaleString(undefined, dateFormatOptions);
+    } catch {
+      return isoString;
+    }
+  }
+
   return (
-    <div>
-      <label htmlFor="bookingsForUser">Bookings for user: {userId}</label>
-      <div className="allbookingsContainer">
+    <div className="bookingsPageContainer">
+      <h1 className="bookingsPageTitle">Your Bookings</h1>
+      <p className="bookingsSubtitle">User ID: {userId}</p>
+
+      <div className="allBookingsContainer">
         {bookings && bookings.length > 0 ? (
-          bookings?.map((booking) => (
-            <>
-              <div key={booking.id}></div>
-              <p>Booking Number: {booking.id}</p>
-              <p>Room Id: {booking.room_id}</p>
-              <p>Start Time: {booking.start_time}</p>
-              <p>End Time: {booking.end_time}</p>
-              <p>Status: {booking.status}</p>
-            </>
+          bookings.map((booking) => (
+            <div key={booking.id} className="bookingCard">
+              <div className="bookingCardHeader">
+                <span className="bookingId">Booking #{booking.id}</span>
+                <span className="bookingStatus">
+                  {booking.status || "Unknown"}
+                </span>
+              </div>
+              <div className="bookingCardBody">
+                <p>
+                  <strong>Room ID:</strong> {booking.room_id}
+                </p>
+                <p>
+                  <strong>Starts:</strong> {formatDate(booking.start_time)}
+                </p>
+                <p>
+                  <strong>Ends:</strong> {formatDate(booking.end_time)}
+                </p>
+              </div>
+            </div>
           ))
         ) : (
-          <p>No bookings found.</p>
+          <p className="noBookingsMsg">No bookings found.</p>
         )}
       </div>
     </div>
