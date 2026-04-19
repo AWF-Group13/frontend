@@ -10,7 +10,7 @@
 .roomImageContainer img {
   width: 100%;
   height: 100%;
-  object-fit: cover; // Maybe change it to fit? Don't know
+  object-fit: cover; /* Maybe change it to fit? Don't know */
 }
 
 .bookRoomSection {
@@ -31,7 +31,7 @@
 }
 
 .bookRoomForm button {
-margin-top: 1rem;
+  margin-top: 1rem;
   background-color: #007bff;
   cursor: pointer;
   width: 20vw;
