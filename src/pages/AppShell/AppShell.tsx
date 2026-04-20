@@ -3,9 +3,7 @@ import { Book } from "lucide-react";
 import { Link, Outlet } from "@tanstack/react-router";
 import "./AppShell.css";
 
-type Props = {};
-
-function AppShell(props: Props) {
+function AppShell() {
   return (
     <div>
       <header>
