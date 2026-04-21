@@ -57,7 +57,6 @@ function RoomDetailsPage() {
   const { roomId } = roomDetailsRoute.useParams();
   const { isSignedIn, getToken } = useAuth();
 
-  const [name, setName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
@@ -207,17 +206,6 @@ function RoomDetailsPage() {
             <form className="bookRoomForm" onSubmit={handleSubmit}>
               <div className="bookRoomField">
                 {error && <pre className="bookRoomError">{error}</pre>}
-                <label htmlFor="name" className="bookRoomLabel">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  placeholder="Full name"
-                  className="bookRoomInput"
-                  value={name}
-                  onChange={handleNameInput}
-                />
               </div>
               <div className="bookRoomField">
                 <label htmlFor="startTime" className="bookRoomLabel">
