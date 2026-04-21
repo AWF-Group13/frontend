@@ -1,5 +1,6 @@
 import { useAuth } from "@clerk/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { cancelBookingRequest, fetchAdminBookings, type BookingRecord } from "../services/adminService";
 import "./admin.css";
 
@@ -21,6 +22,7 @@ function formatDate(value: BookingRecord["start_time"]) {
 function AdminBookingsPage() {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
+  const [cancelconfirm, setCancelconfirm] = useState("");
   const {
     data: bookings,
     isLoading,
@@ -35,6 +37,8 @@ function AdminBookingsPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["adminBookings"] });
       await queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      setCancelconfirm("Booking canceled");
+      setTimeout(() => setCancelconfirm(""), 1500);
     },
   });
 
@@ -48,6 +52,7 @@ function AdminBookingsPage() {
 
       {isLoading ? <div>Loading...</div> : null}
       {error ? <div className="errorText">{error.message}</div> : null}
+      {cancelconfirm ? <div className="cancelconfirm">{cancelconfirm}</div> : null}
 
       {!isLoading && !error ? (
         bookings && bookings.length > 0 ? (
