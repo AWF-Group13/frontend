@@ -2,8 +2,7 @@ import { Link } from "@tanstack/react-router";
 import "./RoomsPage.css";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/react";
-
-type Props = {};
+import type { RoomRecord } from "../../admin/adminApi";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -24,8 +23,8 @@ async function fetchRooms(getAuthToken: () => Promise<string | null>) {
   return data.rooms;
 }
 
-function RoomsPage(props: Props) {
-  const { getToken, isLoaded, isSignedIn } = useAuth();
+function RoomsPage() {
+  const { getToken, isSignedIn } = useAuth();
 
   const {
     data: rooms,
@@ -50,13 +49,17 @@ function RoomsPage(props: Props) {
     <>
       <h1>Rooms</h1>
       <div className="roomsGrid">
-        {rooms?.map((room) => (
-          <Link to={`/rooms/${room.id}`} key={room.id}>
+        {rooms?.map((room: RoomRecord) => (
+          <Link
+            to="/rooms/$roomId"
+            params={{ roomId: String(room.id) }}
+            key={room.id}
+          >
             <div className="roomCard">
               <h2>{room.name}</h2>
               <p>Capacity: {room.capacity}</p>
 
-              {room.features.map((feature: string, index: number) => (
+              {room.features?.map((feature: string, index: number) => (
                 <div key={index}>{feature}</div>
               ))}
             </div>

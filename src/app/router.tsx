@@ -1,9 +1,10 @@
 import {
-  createRootRoute,
+  createRootRouteWithContext,
   createRoute,
   createRouter,
   redirect,
 } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
 
 import AppShell from "../pages/AppShell/AppShell";
 import AdminBookingsPage from "../pages/AdminBookingsPage";
@@ -12,8 +13,17 @@ import BookingsPage from "../pages/BookingsPage";
 import HomePage from "../pages/HomePage";
 import RoomsPage from "../pages/RoomsPage/RoomsPage";
 import RoomDetailsPage from "../pages/RoomDetailsPage";
+import { currentUserQueryOptions } from "../admin/adminApi";
 
-const rootRoute = createRootRoute();
+type RouterContext = { // App.tsx gives this so routes can use auth and query client
+  auth: {
+    getToken: () => Promise<string | null>;
+    isSignedIn: boolean;
+  };
+  queryClient: QueryClient;
+};
+
+const rootRoute = createRootRouteWithContext<RouterContext>()(); // 2 () for typed root route
 
 const layoutRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -24,11 +34,9 @@ const layoutRoute = createRoute({
 const protectedRoute = createRoute({
   getParentRoute: () => layoutRoute,
   id: "protected",
-  beforeLoad: () => {
-    const isSignedIn = true; // temporary for now
-
-    if (!isSignedIn) {
-      throw redirect({ to: "/" });
+  beforeLoad: ({ context }) => {
+    if (!context.auth.isSignedIn) {
+      throw redirect({ to: "/" }); // not logged in? send to home page
     }
   },
 });
@@ -36,11 +44,13 @@ const protectedRoute = createRoute({
 const adminRoute = createRoute({
   getParentRoute: () => protectedRoute,
   id: "admin",
-  beforeLoad: () => {
-    const role = "admin"; // temporary for now
+  beforeLoad: async ({ context }) => {
+    const currentUser = await context.queryClient.ensureQueryData( // asks api who this user is
+      currentUserQueryOptions(context.auth.getToken),
+    );
 
-    if (role !== "admin") {
-      throw redirect({ to: "/rooms" });
+    if (currentUser.role !== "admin") {
+      throw redirect({ to: "/rooms" }); // not an admin? hop u r back to regular room page
     }
   },
 });
@@ -64,7 +74,7 @@ const bookingsRoute = createRoute({
   component: BookingsPage,
 });
 
-export const roomDetailsRoute = createRoute({
+export const roomDetailsRoute = createRoute({ // so RoomDetailsPage can use useParams
   getParentRoute: () => protectedRoute,
   path: "rooms/$roomId",
   component: RoomDetailsPage,
@@ -97,4 +107,11 @@ const routeTree = rootRoute.addChildren([
 
 export const router = createRouter({
   routeTree,
+  context: undefined!, // App.tsx sets this when app run
 });
+
+declare module "@tanstack/react-router" { // helps typescript know the router
+  interface Register {
+    router: typeof router;
+  }
+}
