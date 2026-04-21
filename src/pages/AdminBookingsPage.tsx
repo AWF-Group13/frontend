@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAdminBookings, type BookingRecord } from "../admin/adminApi";
+import { fetchAdminBookings, type BookingRecord } from "../services/adminService";
 import "./admin.css";
 
 function formatDate(value: BookingRecord["start_time"]) {

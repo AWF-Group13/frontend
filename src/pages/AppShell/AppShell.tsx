@@ -8,14 +8,17 @@ import {
 import { Book } from "lucide-react";
 import { Link, Outlet } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { fetchCurrentUser } from "../../admin/adminApi";
+import { getUserData } from "../../services/userService";
 import "./AppShell.css";
 
 function AppShell() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const { data: currentUser } = useQuery({
     queryKey: ["currentUser"],
-    queryFn: () => fetchCurrentUser(getToken),
+    queryFn: async () => {
+      const data = await getUserData(getToken);
+      return data.user;
+    },
     enabled: isLoaded && isSignedIn, // check who is user if theyre actually logged in
   });
 

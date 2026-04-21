@@ -8,7 +8,7 @@ import {
   type RoomInput,
   type RoomRecord,
   updateRoomRequest,
-} from "../admin/adminApi";
+} from "../services/adminService";
 import "./admin.css";
 
 type FormMode = "create" | "edit"; // tracks whether the form is making a new room or changing one

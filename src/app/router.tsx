@@ -13,7 +13,7 @@ import BookingsPage from "../pages/BookingsPage";
 import HomePage from "../pages/HomePage";
 import RoomsPage from "../pages/RoomsPage/RoomsPage";
 import RoomDetailsPage from "../pages/RoomsPage/RoomDetailsPage";
-import { currentUserQueryOptions } from "../admin/adminApi";
+import { getUserData } from "../services/userService";
 
 type RouterContext = {
   // App.tsx gives this so routes can use auth and query client
@@ -47,8 +47,13 @@ const adminRoute = createRoute({
   id: "admin",
   beforeLoad: async ({ context }) => {
     const currentUser = await context.queryClient.ensureQueryData(
-      // asks api who this user is
-      currentUserQueryOptions(context.auth.getToken),
+      {
+        queryKey: ["currentUser"],
+        queryFn: async () => {
+          const data = await getUserData(context.auth.getToken);
+          return data.user;
+        },
+      },
     );
 
     if (currentUser.role !== "admin") {
