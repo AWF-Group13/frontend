@@ -50,7 +50,11 @@ function RoomsPage() {
       <h1>Rooms</h1>
       <div className="roomsGrid">
         {rooms?.map((room: RoomRecord) => (
-          <Link to={`/rooms/${room.id}`} key={room.id}>
+          <Link
+            to="/rooms/$roomId"
+            params={{ roomId: String(room.id) }}
+            key={room.id}
+          >
             <div className="roomCard">
               <h2>{room.name}</h2>
               <p>Capacity: {room.capacity}</p>
