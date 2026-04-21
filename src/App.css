@@ -6,12 +6,16 @@ header {
   position: sticky;
   top: 0;
   gap: 1rem;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 1rem 1.5rem;
   background-color: Canvas;
   border-bottom: 1px solid rgba(127, 127, 127, 0.2);
-  justify-content: space-between;
+}
+
+header nav {
+  grid-column: 2;
 }
 
 nav {
@@ -23,6 +27,7 @@ nav {
 .authButtons {
   display: flex;
   gap: 0.5rem;
+  justify-self: end;
 }
 
 main {

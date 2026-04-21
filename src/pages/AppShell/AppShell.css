@@ -1,11 +1,58 @@
-.homelink {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.5rem;
+.menu {
+  justify-content: center;
+  gap: 0.9rem;
 }
 
-nav {
-  flex-wrap: wrap;
+.homeLink, .menuLink {
+  display: inline-flex;
+  align-items: center;
+}
+
+.homeLink {
+  color: inherit;
+}
+
+.homeLink:focus-visible {
+  outline: none;
+}
+
+.logoImage {
+  width: 56px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.logoText {
+  font: 700 1.1rem/1 inherit;
+    color: #9aa2b5;
+}
+
+.menuLink {
+  gap: 0.55rem;
+  padding: 0.6rem 0.95rem;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: #9aa2b5;
+  white-space: nowrap;
+}
+
+.menuIcon {
+  width: 22px;
+}
+
+.menuLink:hover {
+  color: #c1c8d8;
+  background: rgba(56, 75, 124, 0.18);
+}
+
+.menuLinkCurrent {
+  color: #6f93ff;
+  border-color: rgba(112, 144, 255, 0.5);
+  background: rgba(56, 75, 124, 0.28);
+}
+
+.menuDivider {
+  width: 1px;
+  height: 28px;
+  background: rgba(127, 127, 127, 0.35);
 }
