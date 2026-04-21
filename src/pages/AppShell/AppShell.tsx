@@ -1,9 +1,24 @@
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
+import {
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth,
+} from "@clerk/react";
 import { Book } from "lucide-react";
 import { Link, Outlet } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCurrentUser } from "../../admin/adminApi";
 import "./AppShell.css";
 
 function AppShell() {
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { data: currentUser } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => fetchCurrentUser(getToken),
+    enabled: isLoaded && isSignedIn, // check who is user if theyre actually logged in
+  });
+
   return (
     <div>
       <header>
@@ -14,6 +29,12 @@ function AppShell() {
           </Link>
           <Link to="/rooms">Rooms</Link>
           <Link to="/bookings">Bookings</Link>
+          {currentUser?.role === "admin" ? ( // just admins see links
+            <>
+              <Link to="/admin/rooms">Admin Rooms</Link>
+              <Link to="/admin/bookings">Admin Bookings</Link>
+            </>
+          ) : null}
         </nav>
 
         <div className="authButtons">
