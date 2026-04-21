@@ -1,4 +1,10 @@
-import { Show, SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/react";
+import {
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useAuth,
+} from "@clerk/react";
 import { Book } from "lucide-react";
 import { Link, Outlet } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";

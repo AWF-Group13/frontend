@@ -12,10 +12,11 @@ import AdminRoomsPage from "../pages/AdminRoomsPage";
 import BookingsPage from "../pages/BookingsPage";
 import HomePage from "../pages/HomePage";
 import RoomsPage from "../pages/RoomsPage/RoomsPage";
-import RoomDetailsPage from "../pages/RoomDetailsPage";
+import RoomDetailsPage from "../pages/RoomsPage/RoomDetailsPage";
 import { currentUserQueryOptions } from "../admin/adminApi";
 
-type RouterContext = { // App.tsx gives this so routes can use auth and query client
+type RouterContext = {
+  // App.tsx gives this so routes can use auth and query client
   auth: {
     getToken: () => Promise<string | null>;
     isSignedIn: boolean;
@@ -45,7 +46,8 @@ const adminRoute = createRoute({
   getParentRoute: () => protectedRoute,
   id: "admin",
   beforeLoad: async ({ context }) => {
-    const currentUser = await context.queryClient.ensureQueryData( // asks api who this user is
+    const currentUser = await context.queryClient.ensureQueryData(
+      // asks api who this user is
       currentUserQueryOptions(context.auth.getToken),
     );
 
@@ -68,13 +70,14 @@ const roomsRoute = createRoute({
 });
 
 /* For viewing bookings */
-const bookingsRoute = createRoute({
+export const bookingsRoute = createRoute({
   getParentRoute: () => protectedRoute,
   path: "bookings",
   component: BookingsPage,
 });
 
-export const roomDetailsRoute = createRoute({ // so RoomDetailsPage can use useParams
+export const roomDetailsRoute = createRoute({
+  // so RoomDetailsPage can use useParams
   getParentRoute: () => protectedRoute,
   path: "rooms/$roomId",
   component: RoomDetailsPage,
@@ -110,7 +113,8 @@ export const router = createRouter({
   context: undefined!, // App.tsx sets this when app run
 });
 
-declare module "@tanstack/react-router" { // helps typescript know the router
+declare module "@tanstack/react-router" {
+  // helps typescript know the router
   interface Register {
     router: typeof router;
   }
