@@ -78,7 +78,11 @@ function RoomsPage() {
             (room.features?.length || 0) - MAX_FEATURES;
 
           return (
-            <Link to={`/rooms/${room.id}`} key={room.id}>
+            <Link
+              to="/rooms/$roomId"
+              params={{ roomId: String(room.id) }}
+              key={room.id}
+            >
               <div className="roomCard">
                 <div className="roomCardImageContainer">
                   {room.images && room.images.length > 0 ? (
