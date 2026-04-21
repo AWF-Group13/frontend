@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchAdminBookings, type BookingRecord } from "../services/adminService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { cancelBookingRequest, fetchAdminBookings, type BookingRecord } from "../services/adminService";
 import "./admin.css";
 
 function formatDate(value: BookingRecord["start_time"]) {
@@ -20,6 +20,7 @@ function formatDate(value: BookingRecord["start_time"]) {
 
 function AdminBookingsPage() {
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
   const {
     data: bookings,
     isLoading,
@@ -27,6 +28,14 @@ function AdminBookingsPage() {
   } = useQuery({
     queryKey: ["adminBookings"],
     queryFn: () => fetchAdminBookings(getToken),
+  });
+
+  const cancelBooking = useMutation({
+    mutationFn: (bookingId: number) => cancelBookingRequest(getToken, bookingId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["adminBookings"] });
+      await queryClient.invalidateQueries({ queryKey: ["bookings"] });
+    },
   });
 
   return (
@@ -52,25 +61,43 @@ function AdminBookingsPage() {
                   <th>Start Time</th>
                   <th>End Time</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((booking) => (
-                  <tr key={booking.id}>
-                    <td>{booking.id}</td>
-                    <td>{booking.user_id ?? "-"}</td>
-                    <td>{booking.room_id ?? "-"}</td>
-                    <td>{formatDate(booking.start_time)}</td>
-                    <td>{formatDate(booking.end_time)}</td>
-                    <td>{booking.status ?? "-"}</td>
-                  </tr>
-                ))}
+                {bookings.map((booking) => {
+                  const isCancelled = (booking.status ?? "").toLowerCase().includes("cancel");
+
+                  return (
+                    <tr key={booking.id}>
+                      <td>{booking.id}</td>
+                      <td>{booking.user_id ?? "-"}</td>
+                      <td>{booking.room_id ?? "-"}</td>
+                      <td>{formatDate(booking.start_time)}</td>
+                      <td>{formatDate(booking.end_time)}</td>
+                      <td>{booking.status ?? "-"}</td>
+                      <td>
+                        <button
+                          type="button"
+                          disabled={cancelBooking.isPending || isCancelled}
+                          onClick={() => cancelBooking.mutate(booking.id)}
+                        >
+                          {isCancelled ? "Cancelled" : "Cancel"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         ) : (
           <div className="emptyState">No bookings found.</div>
         )
+      ) : null}
+
+      {cancelBooking.error ? (
+        <div className="errorText">{cancelBooking.error.message}</div>
       ) : null}
     </div>
   );
