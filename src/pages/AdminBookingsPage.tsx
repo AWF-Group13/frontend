@@ -1,12 +1,10 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchAdminBookings,
-  type BookingRecord,
-} from "../admin/adminApi";
+import { fetchAdminBookings, type BookingRecord } from "../admin/adminApi";
 import "./admin.css";
 
-function formatDate(value: BookingRecord["start_time"]) { // date string so turn to something readable and this also handles nulls and dates that are not correct
+function formatDate(value: BookingRecord["start_time"]) {
+  // date string so turn to something readable and this also handles nulls and dates that are not correct
   if (!value) {
     return "-";
   }
@@ -36,7 +34,6 @@ function AdminBookingsPage() {
       <div className="adminHeader">
         <div>
           <h1>Admin Bookings</h1>
-          <p>Read-only view of all bookings.</p>
         </div>
       </div>
 
