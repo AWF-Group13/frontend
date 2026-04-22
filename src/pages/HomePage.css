@@ -11,11 +11,11 @@
   max-width: 1200px;
   margin: 0 auto;
   min-height: 24rem;
-  padding: 4.5rem;
+  padding: 4.5rem 28rem 4.5rem 4.5rem;
   background-image: url("/gif.gif");
   background-repeat: no-repeat;
   background-position: right 3rem center;
-  background-size: min(18rem, 32vw);
+  background-size: min(28rem, 46vw);
 }
 
 .boxes {
