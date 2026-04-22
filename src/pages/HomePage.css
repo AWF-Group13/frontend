@@ -1,11 +1,15 @@
-.welcome {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+.welcome,
+.box {
   border: 1px solid rgba(127, 127, 127, 0.25);
   border-radius: 16px;
   background: #030813;
   color: #9fb0d1;
+}
+
+.welcome {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
 }
 
 .welcome h1 {
@@ -19,4 +23,13 @@
   margin: 0;
   font-size: 1.1rem;
   line-height: 1.45;
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 24rem;
+  margin: 1.5rem auto 0;
+  padding: 1rem;
 }
