@@ -111,6 +111,16 @@
   color: #c0392b;
 }
 
+.cancelconfirm {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  background: #228051;
+  color: #ffffff;
+}
+
 @media (max-width: 900px) {
   .adminLayout {
     grid-template-columns: 1fr;
