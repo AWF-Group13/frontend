@@ -5,7 +5,6 @@ import {
   UserButton,
   useAuth,
 } from "@clerk/react";
-import { Book } from "lucide-react";
 import { Link, Outlet } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getUserData } from "../../services/userService";
@@ -21,23 +20,42 @@ function AppShell() {
     },
     enabled: isLoaded && isSignedIn, // check who is user if theyre actually logged in
   });
+  const isAdmin = currentUser?.role === "admin"; // admin links show or not
+  const links = [
+    { to: "/rooms", icon: "/door.png", label: "Rooms" },
+    { to: "/bookings", icon: "/calendar.png", label: "Bookings" },
+  ];
+  const adminLinks = [
+    { to: "/admin/rooms", icon: "/shield.png", label: "Admin Rooms" },
+    { to: "/admin/bookings", icon: "/clipboard.png", label: "Admin Bookings" },
+  ];
+  const renderLinks = (items: typeof links) => // helper so i dont repeat same thing
+    items.map((item) => (
+      <Link
+        key={item.to}
+        to={item.to}
+        className="menuLink"
+        activeProps={{ className: "menuLink menuLinkCurrent" }}
+      >
+        <img src={item.icon} alt="" className="menuIcon" />
+        {item.label}
+      </Link>
+    ));
 
   return (
     <div>
       <header>
-        <nav>
-          <Link to="/" aria-label="Home" className="homelink">
-            <Book size={20} />
-            Library logo
-          </Link>
-          <Link to="/rooms">Rooms</Link>
-          <Link to="/bookings">Bookings</Link>
-          {currentUser?.role === "admin" ? ( // just admins see links
-            <>
-              <Link to="/admin/rooms">Admin Rooms</Link>
-              <Link to="/admin/bookings">Admin Bookings</Link>
-            </>
-          ) : null}
+        <Link to="/" aria-label="Home" className="homeLink">
+          <img src="/logo_greyishpng.png" alt="LibRoom logo" className="logoImage" />
+          <span className="logoText">LibRoom</span>
+        </Link>
+
+        <nav className="menu">
+          {renderLinks(links)}
+
+          {isAdmin ? <span className="menuDivider" /> : null}
+
+          {isAdmin ? renderLinks(adminLinks) : null}
         </nav>
 
         <div className="authButtons">

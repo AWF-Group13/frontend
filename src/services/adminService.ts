@@ -72,6 +72,16 @@ export async function fetchAdminBookings(
   return data.bookings;
 }
 
+// Cancel booking by id from admin bookings.
+export async function cancelBookingRequest(
+  getToken: () => Promise<string | null>,
+  bookingId: number,
+) {
+  await sendAdminRequest(getToken, `${BASE_URL}/bookings/${bookingId}`, {
+    method: "DELETE",
+  });
+}
+
 // Create a room from the admin form payload.
 export async function createRoomRequest(
   getToken: () => Promise<string | null>,
