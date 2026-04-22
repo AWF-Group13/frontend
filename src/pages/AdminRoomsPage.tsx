@@ -21,7 +21,8 @@ type RoomForm = {
 
 const initialRoomForm: RoomForm = { name: "", capacity: "", featuresText: "" };
 
-function buildRoomForm(room: RoomRecord): RoomForm { // form fields > api
+function buildRoomForm(room: RoomRecord): RoomForm {
+  // form fields > api
   return {
     name: room.name ?? "",
     capacity: room.capacity?.toString() ?? "",
@@ -29,7 +30,8 @@ function buildRoomForm(room: RoomRecord): RoomForm { // form fields > api
   };
 }
 
-function buildRoomInput(roomForm: RoomForm): RoomInput { // form fields > api
+function buildRoomInput(roomForm: RoomForm): RoomInput {
+  // form fields > api
   return {
     name: roomForm.name.trim(),
     capacity: Number(roomForm.capacity),
@@ -57,7 +59,8 @@ function AdminRoomsPage() {
     queryFn: () => fetchAdminRooms(getToken),
   });
 
-  const refreshRooms = async () => { // admin/public page update same time for room
+  const refreshRooms = async () => {
+    // admin/public page update same time for room
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["adminRooms"] }),
       queryClient.invalidateQueries({ queryKey: ["rooms"] }),
@@ -65,7 +68,8 @@ function AdminRoomsPage() {
   };
 
   const createRoomMutation = useMutation({
-    mutationFn: (roomInput: RoomInput) => createRoomRequest(getToken, roomInput),
+    mutationFn: (roomInput: RoomInput) =>
+      createRoomRequest(getToken, roomInput),
     onSuccess: async () => {
       setRoomForm(initialRoomForm); // clean after saving
       setFormError("");
@@ -94,7 +98,8 @@ function AdminRoomsPage() {
   const deleteRoomMutation = useMutation({
     mutationFn: (roomId: number) => deleteRoomRequest(getToken, roomId),
     onSuccess: async (_data, roomId) => {
-      if (editingRoomId !== null && editingRoomId === roomId) { // deleted the room we were editing? reset the form
+      if (editingRoomId !== null && editingRoomId === roomId) {
+        // deleted the room we were editing? reset the form
         setFormMode("create");
         setEditingRoomId(null);
         setRoomForm(initialRoomForm);
@@ -111,7 +116,8 @@ function AdminRoomsPage() {
     setFormError("");
   }
 
-  function startEditing(room: RoomRecord) { // fills form with data from whicever u choose so you can change it
+  function startEditing(room: RoomRecord) {
+    // fills form with data from whicever u choose so you can change it
     setFormMode("edit");
     setEditingRoomId(room.id);
     setRoomForm(buildRoomForm(room));
@@ -134,7 +140,8 @@ function AdminRoomsPage() {
     }
 
     if (formMode === "edit") {
-      if (editingRoomId === null) { // shouldnt happen but just in case
+      if (editingRoomId === null) {
+        // shouldnt happen but just in case
         setFormError("No room selected for editing.");
         return;
       }
@@ -182,7 +189,8 @@ function AdminRoomsPage() {
                         <td>{room.name ?? "Untitled room"}</td>
                         <td>{room.capacity ?? "-"}</td>
                         <td>
-                          {Array.isArray(room.features) && room.features.length > 0 ? (
+                          {Array.isArray(room.features) &&
+                          room.features.length > 0 ? (
                             <ul className="featureList">
                               {room.features.map((feature) => (
                                 <li key={`${room.id}-${feature}`}>{feature}</li>
