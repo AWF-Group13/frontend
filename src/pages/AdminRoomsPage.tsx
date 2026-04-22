@@ -8,6 +8,7 @@ import {
   type RoomInput,
   type RoomRecord,
   updateRoomRequest,
+  updateRoomImagesRequest,
 } from "../services/adminService";
 import "./admin.css";
 
@@ -32,7 +33,7 @@ function buildRoomForm(room: RoomRecord): RoomForm {
   return {
     name: room.name ?? "",
     capacity: room.capacity?.toString() ?? "",
-    roomImageURL: room.roomImageURL ?? "",
+    roomImageURL: room.images?.[0]?.imageUrl ?? room.roomImageURL ?? "",
     featuresText: Array.isArray(room.features) ? room.features.join(", ") : "",
   };
 }
@@ -46,6 +47,9 @@ function buildRoomInput(roomForm: RoomForm): RoomInput {
       .split(",")
       .map((feature) => feature.trim())
       .filter(Boolean), // remove empty strings
+    image_urls: roomForm.roomImageURL.trim()
+      ? [roomForm.roomImageURL.trim()]
+      : undefined,
   };
 }
 
@@ -56,7 +60,6 @@ function AdminRoomsPage() {
   const [editingRoomId, setEditingRoomId] = useState<number | null>(null); // which room id we are editing right now
   const [roomForm, setRoomForm] = useState<RoomForm>(initialRoomForm);
   const [formError, setFormError] = useState("");
-  const [imageURL, setImageURL] = useState<string>("");
 
   const {
     data: rooms,
@@ -89,8 +92,14 @@ function AdminRoomsPage() {
   });
 
   const updateRoomMutation = useMutation({
-    mutationFn: (roomInput: RoomInput) =>
-      updateRoomRequest(getToken, editingRoomId as number, roomInput),
+    mutationFn: async (roomInput: RoomInput) => {
+      await updateRoomRequest(getToken, editingRoomId as number, roomInput);
+      await updateRoomImagesRequest(
+        getToken,
+        editingRoomId as number,
+        roomInput.image_urls ?? [],
+      );
+    },
     onSuccess: async () => {
       setFormMode("create"); // go back to create mode after saving changes
       setEditingRoomId(null);
@@ -260,8 +269,13 @@ function AdminRoomsPage() {
               Room Image URL
               <input
                 id="image-url"
-                value={imageURL}
-                onChange={(event) => setImageURL(event.target.value)}
+                value={roomForm.roomImageURL}
+                onChange={(event) =>
+                  setRoomForm((currentForm) => ({
+                    ...currentForm,
+                    roomImageURL: event.target.value,
+                  }))
+                }
               />
             </label>
 
