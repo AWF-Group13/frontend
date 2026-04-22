@@ -1,11 +1,12 @@
 import { useAuth } from "@clerk/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { roomDetailsRoute } from "../../app/router";
 import "./RoomDetailsPage.css";
 import { useState } from "react";
 import { getUserData } from "../../services/userService";
 import { authenticatedFetch } from "../../services/apiReqService";
 import { convertTimeToMs } from "../../services/utils";
+import type { BookingResponse } from "../BookingsPage";
 
 type RoomImage = {
   id: number;
@@ -62,6 +63,7 @@ async function fetchSingleRoomDetails(
 function RoomDetailsPage() {
   const { roomId } = roomDetailsRoute.useParams();
   const { isSignedIn, getToken } = useAuth();
+  const queryClient = useQueryClient();
 
   const [error, setError] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<string>("");
@@ -98,6 +100,9 @@ function RoomDetailsPage() {
     mutationFn: (bookingData: BookingData) =>
       createBooking(getToken, bookingData),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings", userId] });
+      setStartTime("");
+      setEndTime("");
       alert("Room booked successfully!");
     },
     onError: (err) => {
@@ -125,6 +130,24 @@ function RoomDetailsPage() {
     enabled: isSignedIn,
   });
 
+  const userId = user?.id;
+
+  const { data: bookings } = useQuery({
+    queryKey: ["bookings", userId],
+    queryFn: async (): Promise<BookingResponse[]> => {
+      const response = await authenticatedFetch(
+        getToken,
+        `${BASE_URL}/bookings/user/${userId}`,
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch user bookings");
+      }
+      const data = await response.json();
+      return data.bookings;
+    },
+    enabled: !!userId,
+  });
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -134,7 +157,7 @@ function RoomDetailsPage() {
   if (roomError) {
     return <div>Error loading room details</div>;
   }
-  const userId = user?.id;
+
   // Function to create a booking for the room
   // Takes the booking data and sends a POST request to the backend
   async function createBooking(
@@ -270,11 +293,21 @@ function RoomDetailsPage() {
   }
 
   const room = roomDetails?.room;
+  const hasExistingBookingForRoom = bookings?.some(
+    (booking) => booking.room_id === Number(roomId),
+  );
 
   return (
     <div>
       {room && (
         <div>
+          {hasExistingBookingForRoom ? (
+            <div className="existingBookingAlert">
+              You already have a booking with this room. Please cancel your
+              existing booking to make a new one.
+            </div>
+          ) : null}
+
           <h1>{room.name ?? "Room"}</h1>
 
           {room.images && room.images.length > 0 ? (
@@ -336,7 +369,9 @@ function RoomDetailsPage() {
                   max={endMax}
                 />
               </div>
-              <button type="submit">Book Room</button>
+              <button type="submit" disabled={hasExistingBookingForRoom}>
+                Book Room
+              </button>
             </form>
           </div>
         </div>

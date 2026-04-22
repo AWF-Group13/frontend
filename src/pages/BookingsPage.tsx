@@ -6,7 +6,7 @@ import "./BookingsPage.css";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-type BookingResponse = {
+export type BookingResponse = {
   id: number;
   user_id: number;
   room_id: number;
