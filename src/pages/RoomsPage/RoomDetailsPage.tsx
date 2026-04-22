@@ -4,7 +4,7 @@ import { roomDetailsRoute } from "../../app/router";
 import "./RoomDetailsPage.css";
 import { useState } from "react";
 import { getUserData } from "../../services/userService";
-import { authenticatedFetch } from "../../services/apiReqService";
+import { authenticatedFetch, readErrorMessage } from "../../services/apiReqService";
 import { convertTimeToMs } from "../../services/utils";
 import type { BookingResponse } from "../BookingsPage";
 
@@ -107,6 +107,11 @@ function RoomDetailsPage() {
     },
     onError: (err) => {
       console.error(err);
+      if (err instanceof Error && err.message) {
+        setError(err.message);
+        return;
+      }
+
       setError("Failed to book room. Please try again.");
     },
   });
@@ -177,7 +182,7 @@ function RoomDetailsPage() {
     );
 
     if (!response.ok) {
-      throw new Error("Failed to create booking");
+      throw new Error(await readErrorMessage(response, ""));
     }
 
     return response.json();
@@ -294,7 +299,8 @@ function RoomDetailsPage() {
 
   const room = roomDetails?.room;
   const hasExistingBookingForRoom = bookings?.some(
-    (booking) => booking.room_id === Number(roomId),
+    (booking) =>
+      booking.room_id === Number(roomId) && new Date(booking.end_time) > now,
   );
 
   return (
