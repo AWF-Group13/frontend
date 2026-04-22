@@ -34,14 +34,32 @@
   line-height: 1.45;
 }
 
-.search {
+.welcome > div {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+.search,
+.bookings {
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
-  margin-top: 1.25rem;
   padding: 0.85rem 1.25rem;
+  border: 1px solid transparent;
   border-radius: 12px;
   background: #4568ff;
+  color: #e3e9f7;
+}
+
+.welcome a:hover {
+  color: #e3e9f7;
+}
+
+.bookings {
+  background: transparent;
+  border: 1px solid #4568ff;
 }
 
 .box {
@@ -50,6 +68,5 @@
   align-items: center;
   flex: 1 1 calc((100% - 2rem) / 3);
   gap: 1rem;
-  margin: 0;
   padding: 1rem;
 }

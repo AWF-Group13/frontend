@@ -8,10 +8,16 @@ function HomePage() {
         <p>OPEN 24/7</p>
         <h1>Welcome to LibRoom</h1>
         <p>Find a quiet place to study, meet, or work anytime.</p>
-        <Link to="/rooms" className="search" style={{ color: "#e3e9f7" }}>
-          <img src="/search.png" alt="" width="22" height="22" />
-          Find a Room
-        </Link>
+        <div>
+          <Link to="/rooms" className="search">
+            <img src="/search.png" alt="" width="22" height="22" />
+            Find a Room
+          </Link>
+          <Link to="/bookings" className="bookings">
+            <img src="/calendar.png" alt="" width="22" height="22" />
+            View My Bookings
+          </Link>
+        </div>
       </section>
       <div className="boxes">
         <div className="box">
