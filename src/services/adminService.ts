@@ -8,6 +8,10 @@ export type RoomRecord = {
   capacity: number | null;
   features: string[] | null;
   isBookable: boolean | null;
+  roomImageURL: string | null;
+  images?: {
+    imageUrl: string | null;
+  }[] | null;
 };
 
 export type BookingRecord = {
@@ -23,6 +27,7 @@ export type RoomInput = {
   name: string;
   capacity: number;
   features: string[];
+  image_urls?: string[];
 };
 
 // Wraps admin requests so every endpoint uses authenticatedFetch and consistent errors.
@@ -108,6 +113,20 @@ export async function updateRoomRequest(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(roomInput),
+  });
+}
+
+export async function updateRoomImagesRequest(
+  getToken: () => Promise<string | null>,
+  roomId: number,
+  urls: string[],
+) {
+  await sendAdminRequest(getToken, `${BASE_URL}/rooms/${roomId}/images`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ urls }),
   });
 }
 

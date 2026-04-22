@@ -1,10 +1,15 @@
 import { useAuth } from "@clerk/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { roomDetailsRoute } from "../../app/router";
 import "./RoomDetailsPage.css";
 import { useState } from "react";
 import { getUserData } from "../../services/userService";
-import { authenticatedFetch } from "../../services/apiReqService";
+import {
+  authenticatedFetch,
+  readErrorMessage,
+} from "../../services/apiReqService";
+import { convertTimeToMs } from "../../services/utils";
+import type { BookingResponse } from "../BookingsPage";
 
 type RoomImage = {
   id: number;
@@ -33,8 +38,13 @@ type BookingData = {
 };
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-const MIN_NAME_LENGTH = 2;
-const MAX_NAME_LENGTH = 40;
+const MAX_BOOKING_HOURS = 2; // for a day? or until other booking expires?
+const MAX_BOOKING_DAYS_AHEAD = 7; // how far in advance can a booking be made?
+
+function toDateTimeLocalValue(date: Date) {
+  const tzOffsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - tzOffsetMs).toISOString().slice(0, 16);
+}
 
 async function fetchSingleRoomDetails(
   getAuthToken: () => Promise<string | null>,
@@ -56,20 +66,55 @@ async function fetchSingleRoomDetails(
 function RoomDetailsPage() {
   const { roomId } = roomDetailsRoute.useParams();
   const { isSignedIn, getToken } = useAuth();
+  const queryClient = useQueryClient();
 
-  const [name, setName] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
+  const now = new Date();
+  const maxDate = new Date(
+    now.getTime() + convertTimeToMs(MAX_BOOKING_DAYS_AHEAD, "days"),
+  );
+  const startMin = toDateTimeLocalValue(now);
+  const startMax = toDateTimeLocalValue(maxDate);
+  const endMin = startTime || startMin;
+  const endMax = (() => {
+    const maxEndDate = new Date(startMax);
+
+    if (!startTime) {
+      return startMax;
+    }
+
+    const selectedStart = new Date(startTime);
+    if (Number.isNaN(selectedStart.getTime())) {
+      return startMax;
+    }
+
+    const startPlusMaxHours = new Date(
+      selectedStart.getTime() + convertTimeToMs(MAX_BOOKING_HOURS, "hours"),
+    );
+    const effectiveMax =
+      startPlusMaxHours < maxEndDate ? startPlusMaxHours : maxEndDate;
+
+    return toDateTimeLocalValue(effectiveMax);
+  })();
 
   const createBookingMutation = useMutation({
     mutationFn: (bookingData: BookingData) =>
       createBooking(getToken, bookingData),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings", userId] });
+      setStartTime("");
+      setEndTime("");
       alert("Room booked successfully!");
     },
     onError: (err) => {
       console.error(err);
+      if (err instanceof Error && err.message) {
+        setError(err.message);
+        return;
+      }
+
       setError("Failed to book room. Please try again.");
     },
   });
@@ -93,6 +138,24 @@ function RoomDetailsPage() {
     enabled: isSignedIn,
   });
 
+  const userId = user?.id;
+
+  const { data: bookings } = useQuery({
+    queryKey: ["bookings", userId],
+    queryFn: async (): Promise<BookingResponse[]> => {
+      const response = await authenticatedFetch(
+        getToken,
+        `${BASE_URL}/bookings/user/${userId}`,
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch user bookings");
+      }
+      const data = await response.json();
+      return data.bookings;
+    },
+    enabled: !!userId,
+  });
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -102,8 +165,6 @@ function RoomDetailsPage() {
   if (roomError) {
     return <div>Error loading room details</div>;
   }
-
-  const userId = user?.id;
 
   // Function to create a booking for the room
   // Takes the booking data and sends a POST request to the backend
@@ -124,35 +185,105 @@ function RoomDetailsPage() {
     );
 
     if (!response.ok) {
-      throw new Error("Failed to create booking");
+      throw new Error(await readErrorMessage(response, ""));
     }
 
     return response.json();
   }
 
-  function handleNameInput(event: React.ChangeEvent<HTMLInputElement>) {
-    setName(event.target.value);
+  function handleStartTimeChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const tempStartTime = event.target.value; // temporary var to validate before setting state
+
+    if (!tempStartTime) {
+      setStartTime("");
+      return;
+    }
+
+    if (new Date(tempStartTime) < new Date()) {
+      setError("Start time cannot be in the past.");
+      setStartTime("");
+      return;
+    }
+
+    if (endTime && new Date(endTime) <= new Date(tempStartTime)) {
+      setStartTime(tempStartTime);
+      setError("End time must be after start time.");
+      setEndTime("");
+      return;
+    }
+
+    if (
+      endTime &&
+      new Date(endTime).getTime() - new Date(tempStartTime).getTime() >
+        convertTimeToMs(MAX_BOOKING_HOURS, "hours")
+    ) {
+      setStartTime(tempStartTime);
+      setError(
+        `End time cannot be more than ${MAX_BOOKING_HOURS} hours after start time.`,
+      );
+      setEndTime("");
+      return;
+    }
+
+    setError(null);
+    setStartTime(tempStartTime);
+  }
+
+  function handleEndTimeChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const tempEndTime = event.target.value;
+
+    if (!tempEndTime) {
+      setEndTime("");
+      return;
+    }
+
+    if (new Date(tempEndTime) <= new Date(startTime)) {
+      setError("End time must be after start time.");
+      setEndTime("");
+      return;
+    }
+
+    if (
+      new Date(tempEndTime).getTime() - new Date(startTime).getTime() >
+      convertTimeToMs(MAX_BOOKING_HOURS, "hours")
+    ) {
+      setError(
+        `End time cannot be more than ${MAX_BOOKING_HOURS} hours after start time.`,
+      );
+      setEndTime("");
+      return;
+    }
+
+    setError(null);
+    setEndTime(tempEndTime);
   }
 
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
-    // Handle form submission logic here
-    if (
-      name.trim().length < MIN_NAME_LENGTH ||
-      name.trim().length > MAX_NAME_LENGTH
-    ) {
-      setError("Name must be between 2 and 40 characters");
-      return;
-    }
 
     if (!startTime || !endTime) {
       setError("Start and end time are required.");
       return;
     }
 
+    if (new Date(startTime) < new Date()) {
+      setError("Start time cannot be in the past.");
+      return;
+    }
+
     if (new Date(endTime) <= new Date(startTime)) {
       setError("End time must be after start time.");
+      return;
+    }
+
+    if (
+      new Date(endTime).getTime() - new Date(startTime).getTime() >
+      convertTimeToMs(MAX_BOOKING_HOURS, "hours")
+    ) {
+      setError(
+        `End time cannot be more than ${MAX_BOOKING_HOURS} hours after start time.`,
+      );
       return;
     }
 
@@ -170,81 +301,91 @@ function RoomDetailsPage() {
   }
 
   const room = roomDetails?.room;
+  const hasExistingBookingForRoom = bookings?.some(
+    (booking) =>
+      booking.room_id === Number(roomId) && new Date(booking.end_time) > now,
+  );
 
   return (
     <div>
       {room && (
         <div>
-          <h1>{room.name ?? "Room"}</h1>
-
-          {room.images && room.images.length > 0 ? (
-            <div className="roomImageContainer">
-              <img
-                src={room.images[0].imageUrl}
-                alt={`Room Image ${room.name}`}
-              />
+          {hasExistingBookingForRoom ? (
+            <div className="existingBookingAlert">
+              You already have a booking with this room. Please cancel your
+              existing booking to make a new one.
             </div>
           ) : null}
 
-          <p>Capacity: {room.capacity ?? ""}</p>
-          <p>Available to book: {room.isBookable ? "Yes" : "No"}</p>
+          <div className="roomDetailsLayout">
+            <div className="roomInfoSection">
+              <h1>{room.name ?? "Room"}</h1>
 
-          <div>
-            <h2>Features</h2>
-            {room.features && room.features.length > 0 ? (
-              <ul>
-                {room.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>No features listed.</p>
-            )}
-          </div>
-          {/* <!---------- Booking form ---------> */}
-          <div className="bookRoomSection">
-            <h2>Book Room</h2>
-            <form className="bookRoomForm" onSubmit={handleSubmit}>
-              <div className="bookRoomField">
-                {error && <pre className="bookRoomError">{error}</pre>}
-                <label htmlFor="name" className="bookRoomLabel">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  placeholder="Full name"
-                  className="bookRoomInput"
-                  value={name}
-                  onChange={handleNameInput}
-                />
+              {room.images && room.images.length > 0 ? (
+                <div className="roomImageContainer">
+                  <img
+                    src={room.images[0].imageUrl}
+                    alt={`Room Image ${room.name}`}
+                  />
+                </div>
+              ) : null}
+
+              <p>Capacity: {room.capacity ?? ""}</p>
+              <p>Available to book: {room.isBookable ? "Yes" : "No"}</p>
+
+              <div>
+                <h2>Features</h2>
+                {room.features && room.features.length > 0 ? (
+                  <ul>
+                    {room.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No features listed.</p>
+                )}
               </div>
-              <div className="bookRoomField">
-                <label htmlFor="startTime" className="bookRoomLabel">
-                  Start Time
-                </label>
-                <input
-                  type="datetime-local"
-                  id="startTime"
-                  className="bookRoomInput"
-                  onChange={(e) => setStartTime(e.target.value)}
-                  value={startTime}
-                />
-              </div>
-              <div className="bookRoomField">
-                <label htmlFor="endTime" className="bookRoomLabel">
-                  End Time
-                </label>
-                <input
-                  type="datetime-local"
-                  id="endTime"
-                  className="bookRoomInput"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                />
-              </div>
-              <button type="submit">Book Room</button>
-            </form>
+            </div>
+            {/* <!---------- Booking form ---------> */}
+            <div className="bookRoomSection">
+              <h2>Book Room</h2>
+              <form className="bookRoomForm" onSubmit={handleSubmit}>
+                <div className="bookRoomField">
+                  {error && <pre className="bookRoomError">{error}</pre>}
+                </div>
+                <div className="bookRoomField">
+                  <label htmlFor="startTime" className="bookRoomLabel">
+                    Start Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    id="startTime"
+                    className="bookRoomInput"
+                    onChange={handleStartTimeChange}
+                    value={startTime}
+                    min={startMin}
+                    max={startMax}
+                  />
+                </div>
+                <div className="bookRoomField">
+                  <label htmlFor="endTime" className="bookRoomLabel">
+                    End Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    id="endTime"
+                    className="bookRoomInput"
+                    value={endTime}
+                    onChange={handleEndTimeChange}
+                    min={endMin}
+                    max={endMax}
+                  />
+                </div>
+                <button type="submit" disabled={hasExistingBookingForRoom}>
+                  Book Room
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
