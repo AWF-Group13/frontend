@@ -316,6 +316,9 @@ function AdminRoomsPage() {
               <button type="submit" disabled={isSaving}>
                 {formMode === "edit" ? "Save Changes" : "Create Room"}
               </button>
+              {formMode === "edit" ? (
+                <button type="button">Go Back to Create Room</button>
+              ) : null}
               <button type="button" onClick={resetForm} disabled={isSaving}>
                 Clear
               </button>
