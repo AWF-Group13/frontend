@@ -8,6 +8,7 @@ import {
   type RoomInput,
   type RoomRecord,
   updateRoomRequest,
+  updateRoomImagesRequest,
 } from "../services/adminService";
 import "./admin.css";
 
@@ -16,16 +17,23 @@ type FormMode = "create" | "edit"; // tracks whether the form is making a new ro
 type RoomForm = {
   name: string;
   capacity: string; // turn to number when submit
+  roomImageURL: string;
   featuresText: string; // comma split into array
 };
 
-const initialRoomForm: RoomForm = { name: "", capacity: "", featuresText: "" };
+const initialRoomForm: RoomForm = {
+  name: "",
+  capacity: "",
+  roomImageURL: "",
+  featuresText: "",
+};
 
 function buildRoomForm(room: RoomRecord): RoomForm {
   // form fields > api
   return {
     name: room.name ?? "",
     capacity: room.capacity?.toString() ?? "",
+    roomImageURL: room.images?.[0]?.imageUrl ?? room.roomImageURL ?? "",
     featuresText: Array.isArray(room.features) ? room.features.join(", ") : "",
   };
 }
@@ -39,6 +47,9 @@ function buildRoomInput(roomForm: RoomForm): RoomInput {
       .split(",")
       .map((feature) => feature.trim())
       .filter(Boolean), // remove empty strings
+    image_urls: roomForm.roomImageURL.trim()
+      ? [roomForm.roomImageURL.trim()]
+      : undefined,
   };
 }
 
@@ -81,8 +92,14 @@ function AdminRoomsPage() {
   });
 
   const updateRoomMutation = useMutation({
-    mutationFn: (roomInput: RoomInput) =>
-      updateRoomRequest(getToken, editingRoomId as number, roomInput),
+    mutationFn: async (roomInput: RoomInput) => {
+      await updateRoomRequest(getToken, editingRoomId as number, roomInput);
+      await updateRoomImagesRequest(
+        getToken,
+        editingRoomId as number,
+        roomInput.image_urls ?? [],
+      );
+    },
     onSuccess: async () => {
       setFormMode("create"); // go back to create mode after saving changes
       setEditingRoomId(null);
@@ -243,6 +260,20 @@ function AdminRoomsPage() {
                   setRoomForm((currentForm) => ({
                     ...currentForm,
                     name: event.target.value,
+                  }))
+                }
+              />
+            </label>
+
+            <label htmlFor="image-url">
+              Room Image URL
+              <input
+                id="image-url"
+                value={roomForm.roomImageURL}
+                onChange={(event) =>
+                  setRoomForm((currentForm) => ({
+                    ...currentForm,
+                    roomImageURL: event.target.value,
                   }))
                 }
               />

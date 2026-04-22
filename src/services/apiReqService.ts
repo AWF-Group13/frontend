@@ -26,7 +26,10 @@ export async function authenticatedFetch(
 }
 
 // Normalizes API error payloads because different endpoints return different shapes.
-export async function readErrorMessage(response: Response) {
+export async function readErrorMessage(
+  response: Response,
+  fallbackMessage = "Request failed",
+) {
   const contentType = response.headers.get("content-type") ?? "";
 
   if (contentType.includes("application/json")) {
@@ -46,5 +49,5 @@ export async function readErrorMessage(response: Response) {
   }
 
   const text = await response.text();
-  return text || "Request failed";
+  return text || fallbackMessage;
 }

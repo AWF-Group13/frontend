@@ -1,3 +1,13 @@
+.roomDetailsLayout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.roomInfoSection {
+  flex: 1;
+}
+
 .roomImageContainer {
   display: flex;
   max-width: 30vw;
@@ -14,14 +24,14 @@
 }
 
 .bookRoomSection {
-  margin-top: 2rem;
+  width: 100%;
+  max-width: 40vw;
 }
 
 .bookRoomForm {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-width: 40vw;
   justify-content: center;
 }
 
@@ -37,6 +47,11 @@
   width: 20vw;
 }
 
+.bookRoomForm button:disabled {
+  background-color: #808080;
+  cursor: not-allowed;
+}
+
 .bookRoomField {
   width: 20vw;
 }
@@ -49,4 +64,12 @@
 .bookRoomInput {
   width: 100%;
   padding: 0.5rem;
+}
+
+.existingBookingAlert {
+  background-color: #fff3cd;
+  color: #856404;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
 }
