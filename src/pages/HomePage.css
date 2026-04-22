@@ -12,6 +12,14 @@
   padding: 1.5rem;
 }
 
+.boxes {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 1.5rem auto 0;
+}
+
 .welcome h1 {
   margin: 0.55rem 0 0.75rem;
   color: #e3e9f7;
@@ -28,8 +36,8 @@
 .box {
   display: flex;
   align-items: center;
+  flex: 1 1 24rem;
   gap: 1rem;
-  max-width: 24rem;
-  margin: 1.5rem auto 0;
+  margin: 0;
   padding: 1rem;
 }
