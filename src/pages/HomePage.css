@@ -40,6 +40,11 @@
   max-width: 48rem;
 }
 
+.open {
+  color: #4568ff;
+  font-weight: 700;
+}
+
 .welcome > div {
   display: flex;
   gap: 1.25rem;

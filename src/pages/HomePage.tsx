@@ -5,7 +5,7 @@ function HomePage() {
   return (
     <>
       <section className="welcome">
-        <p>OPEN 24/7</p>
+        <p className="open">OPEN 24/7</p>
         <h1>Welcome to LibRoom</h1>
         <p>
           Book a quiet study room, meeting space, or work area anytime.
@@ -52,7 +52,7 @@ function HomePage() {
       <div className="box note">
         <img src="/bell.png" alt="" width="48" height="48" />
         <div>
-          <b>Today's Note</b>
+          <b className="open">Today's Note</b>
           <br />
           Respect the space, keep rooms clean, and leave them ready for the next
           person.
