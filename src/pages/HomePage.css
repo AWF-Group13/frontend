@@ -12,6 +12,10 @@
   margin: 0 auto;
   min-height: 24rem;
   padding: 4.5rem;
+  background-image: url("/gif.gif");
+  background-repeat: no-repeat;
+  background-position: right 3rem center;
+  background-size: min(18rem, 32vw);
 }
 
 .boxes {
