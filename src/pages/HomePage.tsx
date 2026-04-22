@@ -49,6 +49,15 @@ function HomePage() {
           </div>
         </div>
       </div>
+      <div className="box note">
+        <img src="/bell.png" alt="" width="48" height="48" />
+        <div>
+          <b>Today's Note</b>
+          <br />
+          Respect the space, keep rooms clean, and leave them ready for the next
+          person.
+        </div>
+      </div>
     </>
   );
 }

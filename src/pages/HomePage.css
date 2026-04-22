@@ -76,3 +76,8 @@
   gap: 1rem;
   padding: 1rem;
 }
+
+.note {
+  max-width: 1200px;
+  margin: 1rem auto 0;
+}
