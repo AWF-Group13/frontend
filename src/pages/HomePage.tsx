@@ -7,7 +7,11 @@ function HomePage() {
       <section className="welcome">
         <p>OPEN 24/7</p>
         <h1>Welcome to LibRoom</h1>
-        <p>Find a quiet place to study, meet, or work anytime.</p>
+        <p>
+          Book a quiet study room, meeting space, or work area anytime.
+          <br />
+          The library is open 24/7, so your space is always available.
+        </p>
         <div>
           <Link to="/rooms" className="search">
             <img src="/search.png" alt="" width="22" height="22" />
