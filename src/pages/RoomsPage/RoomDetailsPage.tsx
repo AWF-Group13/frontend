@@ -317,71 +317,75 @@ function RoomDetailsPage() {
             </div>
           ) : null}
 
-          <h1>{room.name ?? "Room"}</h1>
+          <div className="roomDetailsLayout">
+            <div className="roomInfoSection">
+              <h1>{room.name ?? "Room"}</h1>
 
-          {room.images && room.images.length > 0 ? (
-            <div className="roomImageContainer">
-              <img
-                src={room.images[0].imageUrl}
-                alt={`Room Image ${room.name}`}
-              />
+              {room.images && room.images.length > 0 ? (
+                <div className="roomImageContainer">
+                  <img
+                    src={room.images[0].imageUrl}
+                    alt={`Room Image ${room.name}`}
+                  />
+                </div>
+              ) : null}
+
+              <p>Capacity: {room.capacity ?? ""}</p>
+              <p>Available to book: {room.isBookable ? "Yes" : "No"}</p>
+
+              <div>
+                <h2>Features</h2>
+                {room.features && room.features.length > 0 ? (
+                  <ul>
+                    {room.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No features listed.</p>
+                )}
+              </div>
             </div>
-          ) : null}
-
-          <p>Capacity: {room.capacity ?? ""}</p>
-          <p>Available to book: {room.isBookable ? "Yes" : "No"}</p>
-
-          <div>
-            <h2>Features</h2>
-            {room.features && room.features.length > 0 ? (
-              <ul>
-                {room.features.map((feature) => (
-                  <li key={feature}>{feature}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>No features listed.</p>
-            )}
-          </div>
-          {/* <!---------- Booking form ---------> */}
-          <div className="bookRoomSection">
-            <h2>Book Room</h2>
-            <form className="bookRoomForm" onSubmit={handleSubmit}>
-              <div className="bookRoomField">
-                {error && <pre className="bookRoomError">{error}</pre>}
-              </div>
-              <div className="bookRoomField">
-                <label htmlFor="startTime" className="bookRoomLabel">
-                  Start Time
-                </label>
-                <input
-                  type="datetime-local"
-                  id="startTime"
-                  className="bookRoomInput"
-                  onChange={handleStartTimeChange}
-                  value={startTime}
-                  min={startMin}
-                  max={startMax}
-                />
-              </div>
-              <div className="bookRoomField">
-                <label htmlFor="endTime" className="bookRoomLabel">
-                  End Time
-                </label>
-                <input
-                  type="datetime-local"
-                  id="endTime"
-                  className="bookRoomInput"
-                  value={endTime}
-                  onChange={handleEndTimeChange}
-                  min={endMin}
-                  max={endMax}
-                />
-              </div>
-              <button type="submit" disabled={hasExistingBookingForRoom}>
-                Book Room
-              </button>
-            </form>
+            {/* <!---------- Booking form ---------> */}
+            <div className="bookRoomSection">
+              <h2>Book Room</h2>
+              <form className="bookRoomForm" onSubmit={handleSubmit}>
+                <div className="bookRoomField">
+                  {error && <pre className="bookRoomError">{error}</pre>}
+                </div>
+                <div className="bookRoomField">
+                  <label htmlFor="startTime" className="bookRoomLabel">
+                    Start Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    id="startTime"
+                    className="bookRoomInput"
+                    onChange={handleStartTimeChange}
+                    value={startTime}
+                    min={startMin}
+                    max={startMax}
+                  />
+                </div>
+                <div className="bookRoomField">
+                  <label htmlFor="endTime" className="bookRoomLabel">
+                    End Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    id="endTime"
+                    className="bookRoomInput"
+                    value={endTime}
+                    onChange={handleEndTimeChange}
+                    min={endMin}
+                    max={endMax}
+                  />
+                </div>
+                <button type="submit" disabled={hasExistingBookingForRoom}>
+                  Book Room
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}
