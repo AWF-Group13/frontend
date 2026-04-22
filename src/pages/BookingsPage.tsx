@@ -6,7 +6,7 @@ import "./BookingsPage.css";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-type Booking = {
+type BookingResponse = {
   id: number;
   user_id: number;
   room_id: number;
@@ -40,7 +40,7 @@ function BookingsPage() {
     error: bookingsError,
   } = useQuery({
     queryKey: ["bookings", userId],
-    queryFn: async (): Promise<Booking[]> => {
+    queryFn: async (): Promise<BookingResponse[]> => {
       const response = await authenticatedFetch(
         getToken,
         `${BASE_URL}/bookings/user/${userId}`,
