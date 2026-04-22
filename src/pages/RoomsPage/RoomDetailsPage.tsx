@@ -2,6 +2,7 @@ import { useAuth } from "@clerk/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { roomDetailsRoute } from "../../app/router";
 import "./RoomDetailsPage.css";
+import "../BookingsPage.css";
 import { useState } from "react";
 import { getUserData } from "../../services/userService";
 import {
@@ -330,17 +331,27 @@ function RoomDetailsPage() {
                 </div>
               ) : null}
 
-              <p>Capacity: {room.capacity ?? ""}</p>
-              <p>Available to book: {room.isBookable ? "Yes" : "No"}</p>
+              <div className="roomInfoGrid">
+                <div className="roomInfoItem">
+                  <span className="roomInfoLabel">Capacity</span>
+                  <span className="roomInfoValue">{room.capacity ?? "—"}</span>
+                </div>
+                <div className="roomInfoItem">
+                  <span className="roomInfoLabel">Available to book</span>
+                  <span className="roomInfoValue">{room.isBookable ? "Yes" : "No"}</span>
+                </div>
+              </div>
 
-              <div>
-                <h2>Features</h2>
+              <div className="roomFeaturesSection">
+                <h2 className="roomFeaturesTitle">Features</h2>
                 {room.features && room.features.length > 0 ? (
-                  <ul>
+                  <div>
                     {room.features.map((feature) => (
-                      <li key={feature}>{feature}</li>
+                      <span className="bookingStatus" key={feature}>
+                        {feature}
+                      </span>
                     ))}
-                  </ul>
+                  </div>
                 ) : (
                   <p>No features listed.</p>
                 )}

@@ -73,3 +73,44 @@
   padding: 0.75rem 1rem;
   margin-bottom: 1.25rem;
 }
+
+/* ---- Room info grid (Capacity / Availability) ---- */
+.roomInfoGrid {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.roomInfoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.roomInfoLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05rem;
+  color: #9ca3af;
+}
+
+.roomInfoValue {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+/* ---- Features chips ---- */
+.roomFeaturesSection {
+  margin-top: 0.25rem;
+}
+
+.roomFeaturesTitle {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.roomFeaturesSection .bookingStatus {
+  margin-right: 0.5rem;
+}
