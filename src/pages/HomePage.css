@@ -34,6 +34,16 @@
   line-height: 1.45;
 }
 
+.search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  background: #4568ff;
+}
+
 .box {
   box-sizing: border-box;
   display: flex;
