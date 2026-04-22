@@ -8,6 +8,7 @@ export type RoomRecord = {
   capacity: number | null;
   features: string[] | null;
   isBookable: boolean | null;
+  roomImageURL: string | null;
 };
 
 export type BookingRecord = {

@@ -16,20 +16,29 @@ type FormMode = "create" | "edit"; // tracks whether the form is making a new ro
 type RoomForm = {
   name: string;
   capacity: string; // turn to number when submit
+  roomImageURL: string;
   featuresText: string; // comma split into array
 };
 
-const initialRoomForm: RoomForm = { name: "", capacity: "", featuresText: "" };
+const initialRoomForm: RoomForm = {
+  name: "",
+  capacity: "",
+  roomImageURL: "",
+  featuresText: "",
+};
 
-function buildRoomForm(room: RoomRecord): RoomForm { // form fields > api
+function buildRoomForm(room: RoomRecord): RoomForm {
+  // form fields > api
   return {
     name: room.name ?? "",
     capacity: room.capacity?.toString() ?? "",
+    roomImageURL: room.roomImageURL ?? "",
     featuresText: Array.isArray(room.features) ? room.features.join(", ") : "",
   };
 }
 
-function buildRoomInput(roomForm: RoomForm): RoomInput { // form fields > api
+function buildRoomInput(roomForm: RoomForm): RoomInput {
+  // form fields > api
   return {
     name: roomForm.name.trim(),
     capacity: Number(roomForm.capacity),
@@ -47,6 +56,7 @@ function AdminRoomsPage() {
   const [editingRoomId, setEditingRoomId] = useState<number | null>(null); // which room id we are editing right now
   const [roomForm, setRoomForm] = useState<RoomForm>(initialRoomForm);
   const [formError, setFormError] = useState("");
+  const [imageURL, setImageURL] = useState<string>("");
 
   const {
     data: rooms,
@@ -57,7 +67,8 @@ function AdminRoomsPage() {
     queryFn: () => fetchAdminRooms(getToken),
   });
 
-  const refreshRooms = async () => { // admin/public page update same time for room
+  const refreshRooms = async () => {
+    // admin/public page update same time for room
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["adminRooms"] }),
       queryClient.invalidateQueries({ queryKey: ["rooms"] }),
@@ -65,7 +76,8 @@ function AdminRoomsPage() {
   };
 
   const createRoomMutation = useMutation({
-    mutationFn: (roomInput: RoomInput) => createRoomRequest(getToken, roomInput),
+    mutationFn: (roomInput: RoomInput) =>
+      createRoomRequest(getToken, roomInput),
     onSuccess: async () => {
       setRoomForm(initialRoomForm); // clean after saving
       setFormError("");
@@ -94,7 +106,8 @@ function AdminRoomsPage() {
   const deleteRoomMutation = useMutation({
     mutationFn: (roomId: number) => deleteRoomRequest(getToken, roomId),
     onSuccess: async (_data, roomId) => {
-      if (editingRoomId !== null && editingRoomId === roomId) { // deleted the room we were editing? reset the form
+      if (editingRoomId !== null && editingRoomId === roomId) {
+        // deleted the room we were editing? reset the form
         setFormMode("create");
         setEditingRoomId(null);
         setRoomForm(initialRoomForm);
@@ -111,7 +124,8 @@ function AdminRoomsPage() {
     setFormError("");
   }
 
-  function startEditing(room: RoomRecord) { // fills form with data from whicever u choose so you can change it
+  function startEditing(room: RoomRecord) {
+    // fills form with data from whicever u choose so you can change it
     setFormMode("edit");
     setEditingRoomId(room.id);
     setRoomForm(buildRoomForm(room));
@@ -134,7 +148,8 @@ function AdminRoomsPage() {
     }
 
     if (formMode === "edit") {
-      if (editingRoomId === null) { // shouldnt happen but just in case
+      if (editingRoomId === null) {
+        // shouldnt happen but just in case
         setFormError("No room selected for editing.");
         return;
       }
@@ -182,7 +197,8 @@ function AdminRoomsPage() {
                         <td>{room.name ?? "Untitled room"}</td>
                         <td>{room.capacity ?? "-"}</td>
                         <td>
-                          {Array.isArray(room.features) && room.features.length > 0 ? (
+                          {Array.isArray(room.features) &&
+                          room.features.length > 0 ? (
                             <ul className="featureList">
                               {room.features.map((feature) => (
                                 <li key={`${room.id}-${feature}`}>{feature}</li>
@@ -237,6 +253,15 @@ function AdminRoomsPage() {
                     name: event.target.value,
                   }))
                 }
+              />
+            </label>
+
+            <label htmlFor="image-url">
+              Room Image URL
+              <input
+                id="image-url"
+                value={imageURL}
+                onChange={(event) => setImageURL(event.target.value)}
               />
             </label>
 
