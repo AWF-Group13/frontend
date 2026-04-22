@@ -31,15 +31,29 @@ function AppShell() {
   ];
   const renderLinks = (items: typeof links) => // helper so i dont repeat same thing
     items.map((item) => (
-      <Link
-        key={item.to}
-        to={item.to}
-        className="menuLink"
-        activeProps={{ className: "menuLink menuLinkCurrent" }}
-      >
-        <img src={item.icon} alt="" className="menuIcon" />
-        {item.label}
-      </Link>
+      isSignedIn ? (
+        <Link
+          key={item.to}
+          to={item.to}
+          className="menuLink"
+          activeProps={{ className: "menuLink menuLinkCurrent" }}
+        >
+          <img src={item.icon} alt="" className="menuIcon" />
+          {item.label}
+        </Link>
+      ) : (
+        <SignInButton
+          key={item.to}
+          mode="redirect"
+          fallbackRedirectUrl={item.to}
+          signUpFallbackRedirectUrl={item.to}
+        >
+          <button type="button" className="menuLink menuLinkButton">
+            <img src={item.icon} alt="" className="menuIcon" />
+            {item.label}
+          </button>
+        </SignInButton>
+      )
     ));
 
   return (

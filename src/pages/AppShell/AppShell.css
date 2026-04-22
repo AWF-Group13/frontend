@@ -3,7 +3,8 @@
   gap: 0.9rem;
 }
 
-.homeLink, .menuLink {
+.homeLink,
+.menuLink {
   display: inline-flex;
   align-items: center;
 }
@@ -24,7 +25,7 @@
 
 .logoText {
   font: 700 1.1rem/1 inherit;
-    color: #9aa2b5;
+  color: #9aa2b5;
 }
 
 .menuLink {
@@ -34,6 +35,10 @@
   border-radius: 14px;
   color: #9aa2b5;
   white-space: nowrap;
+}
+
+.menuLinkButton {
+  background: transparent;
 }
 
 .menuIcon {

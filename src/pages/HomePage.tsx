@@ -1,7 +1,10 @@
+import { SignInButton, useAuth } from "@clerk/react";
 import { Link } from "@tanstack/react-router";
 import "./HomePage.css";
 
 function HomePage() {
+  const { isSignedIn } = useAuth();
+
   return (
     <>
       <section className="welcome">
@@ -13,14 +16,40 @@ function HomePage() {
           The library is open 24/7, so your space is always available.
         </p>
         <div>
-          <Link to="/rooms" className="search">
-            <img src="/search.png" alt="" width="22" height="22" />
-            Find a Room
-          </Link>
-          <Link to="/bookings" className="bookings">
-            <img src="/calendar.png" alt="" width="22" height="22" />
-            View My Bookings
-          </Link>
+          {isSignedIn ? (
+            <Link to="/rooms" className="search">
+              <img src="/search.png" alt="" width="22" height="22" />
+              Find a Room
+            </Link>
+          ) : (
+            <SignInButton
+              mode="redirect"
+              fallbackRedirectUrl="/rooms"
+              signUpFallbackRedirectUrl="/rooms"
+            >
+              <button type="button" className="search">
+                <img src="/search.png" alt="" width="22" height="22" />
+                Find a Room
+              </button>
+            </SignInButton>
+          )}
+          {isSignedIn ? (
+            <Link to="/bookings" className="bookings">
+              <img src="/calendar.png" alt="" width="22" height="22" />
+              View My Bookings
+            </Link>
+          ) : (
+            <SignInButton
+              mode="redirect"
+              fallbackRedirectUrl="/bookings"
+              signUpFallbackRedirectUrl="/bookings"
+            >
+              <button type="button" className="bookings">
+                <img src="/calendar.png" alt="" width="22" height="22" />
+                View My Bookings
+              </button>
+            </SignInButton>
+          )}
         </div>
       </section>
       <div className="boxes">
