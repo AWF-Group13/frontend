@@ -25,6 +25,14 @@ function HomePage() {
             Find a calm room when you need to focus.
           </div>
         </div>
+        <div className="box">
+          <img src="/room.png" alt="" width="48" height="48" />
+          <div>
+            <b>Group Study</b>
+            <br />
+            Book a space for meetings, projects, or study sessions.
+          </div>
+        </div>
       </div>
     </>
   );

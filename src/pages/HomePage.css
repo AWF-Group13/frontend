@@ -34,9 +34,10 @@
 }
 
 .box {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  flex: 1 1 24rem;
+  flex: 1 1 calc((100% - 2rem) / 3);
   gap: 1rem;
   margin: 0;
   padding: 1rem;
