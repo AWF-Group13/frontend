@@ -4,7 +4,10 @@ import { roomDetailsRoute } from "../../app/router";
 import "./RoomDetailsPage.css";
 import { useState } from "react";
 import { getUserData } from "../../services/userService";
-import { authenticatedFetch, readErrorMessage } from "../../services/apiReqService";
+import {
+  authenticatedFetch,
+  readErrorMessage,
+} from "../../services/apiReqService";
 import { convertTimeToMs } from "../../services/utils";
 import type { BookingResponse } from "../BookingsPage";
 

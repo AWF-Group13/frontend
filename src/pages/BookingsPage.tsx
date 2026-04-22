@@ -1,7 +1,8 @@
 import { authenticatedFetch } from "../services/apiReqService";
 import { useAuth } from "@clerk/react";
 import { getUserData } from "../services/userService";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { cancelBookingRequest } from "../services/adminService";
 import "./BookingsPage.css";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -17,6 +18,7 @@ export type BookingResponse = {
 
 function BookingsPage() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
+  const queryClient = useQueryClient();
 
   // Need the user id for post req
   const {
@@ -52,6 +54,14 @@ function BookingsPage() {
       return data.bookings;
     },
     enabled: !!userId,
+  });
+
+  const cancelBooking = useMutation({
+    mutationFn: (bookingId: number) =>
+      cancelBookingRequest(getToken, bookingId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["bookings", userId] });
+    },
   });
 
   if (isLoading || bookingsLoading) {
@@ -97,31 +107,52 @@ function BookingsPage() {
 
       <div className="allBookingsContainer">
         {bookings && bookings.length > 0 ? (
-          bookings.map((booking) => (
-            <div key={booking.id} className="bookingCard">
-              <div className="bookingCardHeader">
-                <span className="bookingId">Booking #{booking.id}</span>
-                <span className="bookingStatus">
-                  {booking.status || "Unknown"}
-                </span>
+          bookings.map((booking) => {
+            const isCancelled = (booking.status ?? "")
+              .toLowerCase()
+              .includes("cancel");
+            const isUpcoming = new Date(booking.start_time) > new Date();
+
+            return (
+              <div key={booking.id} className="bookingCard">
+                <div className="bookingCardHeader">
+                  <span className="bookingId">Booking #{booking.id}</span>
+                  <div className="bookingCardHeaderActions">
+                    {!isCancelled && isUpcoming ? (
+                      <button
+                        type="button"
+                        className="bookingCancelButton"
+                        onClick={() => cancelBooking.mutate(booking.id)}
+                      >
+                        Cancel
+                      </button>
+                    ) : null}
+                    <span className="bookingStatus">
+                      {booking.status || "Unknown"}
+                    </span>
+                  </div>
+                </div>
+                <div className="bookingCardBody">
+                  <p>
+                    <strong>Room ID:</strong> {booking.room_id}
+                  </p>
+                  <p>
+                    <strong>Starts:</strong> {formatDate(booking.start_time)}
+                  </p>
+                  <p>
+                    <strong>Ends:</strong> {formatDate(booking.end_time)}
+                  </p>
+                </div>
               </div>
-              <div className="bookingCardBody">
-                <p>
-                  <strong>Room ID:</strong> {booking.room_id}
-                </p>
-                <p>
-                  <strong>Starts:</strong> {formatDate(booking.start_time)}
-                </p>
-                <p>
-                  <strong>Ends:</strong> {formatDate(booking.end_time)}
-                </p>
-              </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <p className="noBookingsMsg">No bookings found.</p>
         )}
       </div>
+      {cancelBooking.error ? (
+        <p className="bookingCancelError">{cancelBooking.error.message}</p>
+      ) : null}
     </div>
   );
 }
